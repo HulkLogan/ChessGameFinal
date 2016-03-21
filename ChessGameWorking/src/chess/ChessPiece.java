@@ -6,15 +6,15 @@ import javax.swing.JLabel;
 public abstract class ChessPiece implements IChessPiece {
 	
 	private Player owner;
-	protected boolean isMoved;
+	protected boolean hasMoved;
 	
 	protected ChessPiece(Player player) {
 		this.owner = player;
-		isMoved = false;
+		hasMoved = false;
 	}
 	
 	public void isNowMoved() {
-		isMoved = true;
+		hasMoved = true;
 	}
 	
 	public abstract String type();
