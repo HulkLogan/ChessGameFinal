@@ -13,6 +13,10 @@ public abstract class ChessPiece implements IChessPiece {
 		isMoved = false;
 	}
 	
+	public void isNowMoved() {
+		isMoved = true;
+	}
+	
 	public abstract String type();
 	
 	public Player player() {
