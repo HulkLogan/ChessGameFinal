@@ -17,6 +17,17 @@ public abstract class ChessPiece implements IChessPiece {
 		return owner;
 	}
 	
+	public boolean isThreatened() {
+		for (int r = 0; r < 8; r++) {
+			for (int c = 0; c < 8; c++ /*best language*/) {
+				if (board[r][c].isValidMove(move(r, c, row, column),
+					board))
+					return true;
+			}
+		}
+		return false;
+	}
+	
 	public boolean isValidMove(Move move, IChessPiece[][] board) {
 		//check that move is a move
 	 	if(move.fromRow == move.toRow 
@@ -34,7 +45,16 @@ public abstract class ChessPiece implements IChessPiece {
 	 			return false;
 	 		}
 	 	}
+	 	board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
+	 	board[move.fromRow][move.fromColumn] = null;
+	 	
+	 	for(int r = 0; r < 8; r++)
+	 	{
+	 		for (int c = 0; r < 8; c++ /* still best language */)
+	 			if (board[r][c].type().equals("King") && board[r][c].player() == 
+	 				this.owner && board[r][c].isThreatened())
+	 				return false;
+	 	}
 	 	return true;
 	}
 }
-
