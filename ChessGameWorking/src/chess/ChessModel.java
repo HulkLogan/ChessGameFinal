@@ -179,37 +179,30 @@ public class ChessModel implements IChessModel {
 	
 	public void removePiece(IChessPiece x) {
 		if (x.player() == Player.WHITE) {
-			if (x.type() == "Knight") {
-				takenWhiteKnight++;
-			} 
-			else if (x.type() == "Rook") {
-				takenWhiteRook++;
-			} 
-			else if (x.type() == "Bishop") {
-				takenWhiteBishop++;
-			}
-			else if(x.type() == "Pawn") {
-				takenWhitePawn++;
-			}
-			else if(x.type() == "Queen") {
-				takenWhiteQueen++;
-			}
+			switch (x.type())
+				case "Knight":	takenWhiteKnight++;
+				break;
+				case "Rook":	takenWhiteRook++;
+				break;
+				case "Bishop":	takenWhiteBishop++;
+				break;
+				case "Pawn":	takenWhitePawn++;
+				break;
+				case "Queen":	takenWhiteQueen++;
+				break;
+			
 		} else if (x.player() == Player.BLACK) {
-			if (x.type() == "Knight") {
-				takenBlackKnight++;
-			} 
-			else if (x.type() == "Rook") {
-				takenBlackRook++;
-			} 
-			else if (x.type() == "Bishop") {
-				takenBlackBishop++;
-			}
-			else if(x.type() == "Pawn") {
-				takenBlackPawn++;
-			}
-			else if(x.type() == "Queen") {
-				takenBlackQueen++;
-			}
+			switch (x.type())
+				case "Knight":	takenBlackKnight++;
+				break;
+				case "Rook":	takenBlackRook++;
+				break;
+				case "Bishop":	takenBlackBishop++;
+				break;
+				case "Pawn":	takenBlackPawn++;
+				break;
+				case "Queen":	takenBlackQueen++;
+				break;
 		}
 	}
 	
