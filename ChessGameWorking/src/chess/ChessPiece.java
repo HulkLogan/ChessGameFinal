@@ -52,8 +52,10 @@ public abstract class ChessPiece implements IChessPiece {
 	 	{
 	 		for (int c = 0; r < 8; c++ /* still best language */)
 	 			if (board[r][c].type().equals("King") && board[r][c].player() == 
-	 				this.owner && board[r][c].isThreatened())
-	 				return false;
+	 				this.owner)
+	 				board[r][c] = null;
+	 				if  (board[r][c].isThreatened())
+	 					return false;
 	 	}
 	 	return true;
 	}
