@@ -217,6 +217,8 @@ public class ChessModel implements IChessModel {
 	 * @return false - the square is not threatened
 	 * @return true - the square is threatened
 	 ****************************************************************/
+	 
+	 // FIXME: Consolidate the two "threatened" methods: this one and the one in ChessPiece
 	public boolean squareIsThreatened(int Row, int Col) {
 		for (int r = 0; r < 8; r++) {
 			for (int c = 0; c < 8; c++) {
