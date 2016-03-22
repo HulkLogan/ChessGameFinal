@@ -106,7 +106,7 @@ public class ChessModel implements IChessModel {
 			}
 			board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
 			board[move.fromRow][move.fromColumn] = null;
-			board[move.toRow][toColumn].isNowMoved(); 
+			board[move.toRow][move.toColumn].isNowMoved(); 
 			setNextPlayer();
 		}
 		else {
