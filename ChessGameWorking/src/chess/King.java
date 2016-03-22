@@ -29,8 +29,8 @@ public class King extends ChessPiece{
 		if(super.isValidMove(move, board)) {
 			if (!this.hasMoved && Math.abs(move.toColumn - move.fromColumn) == 2 &&
 				move.toRow == firstRank)
-				boolean kingside == move.toColumn > 4;
-				if (!(ChessPiece) board[firstRank][0].hasMoved()) {
+				boolean kingside = move.toColumn > 4;
+				if (!board[firstRank][0].hasMoved()) {
 					for (int n = 4; n != kingside ? 8 : -1; n += kingside ? 1 : -1)
 					{
 						if (board[firstRank][n] != null || (ChessPiece)
