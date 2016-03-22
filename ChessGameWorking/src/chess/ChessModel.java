@@ -22,21 +22,33 @@ public class ChessModel implements IChessModel {
 	public IChessPiece currentPiece;
 	
 	/**holds the number of pieces taken during the game*/
-	public int takenBlackKnight = 0;
-	public int takenWhiteKnight = 0;
-	public int takenBlackBishop = 0;
-	public int takenWhiteBishop = 0;
-	public int takenBlackRook = 0;
-	public int takenWhiteRook = 0;
-	public int takenBlackPawn = 0;
-	public int takenWhitePawn = 0;
-	public int takenBlackQueen = 0;
-	public int takenWhiteQueen = 0;
+	public int takenBlackKnight;
+	public int takenWhiteKnight;
+	public int takenBlackBishop;
+	public int takenWhiteBishop;
+	public int takenBlackRook;
+	public int takenWhiteRook;
+	public int takenBlackPawn;
+	public int takenWhitePawn;
+	public int takenBlackQueen;
+	public int takenWhiteQueen;
 
 	/*****************************************************************
 	 * The main method sets up the board and all of the pieces
 	 *****************************************************************/
 	public ChessModel() {
+		
+		takenBlackKnight = 0;
+		takenWhiteKnight = 0;
+		takenBlackBishop = 0;
+		takenWhiteBishop = 0;
+		takenBlackRook = 0;
+		takenWhiteRook = 0;
+		takenBlackPawn = 0;
+		takenWhitePawn = 0;
+		takenBlackQueen = 0;
+		takenWhiteQueen = 0;
+
 		board = new IChessPiece[8][8];
 		player = Player.WHITE;
 		
@@ -225,8 +237,12 @@ public class ChessModel implements IChessModel {
 	public boolean canRemoveThreat(int kingRow, int kingCol){
 		IChessPiece[][] temp = board;
 		boolean canRemove = false;
-		for (int r = 0; r < 8; r++) {
-			for (int c = 0; c < 8; c++) {
+		int r;
+		int c;
+		//In case the inner loop has problems calling the counter from the outer loop
+		
+		for (r = 0; r < 8; r++) {
+			for (c = 0; c < 8; c++) {
 				Move x = new Move(r, c, kingRow, kingCol);
 				if (pieceAt(r, c).isValidMove(x, board)){
 					temp[r][c] = null;
@@ -254,7 +270,7 @@ public class ChessModel implements IChessModel {
 	 ****************************************************************/
 	public void removePiece(IChessPiece x) {
 		if (x.player() == Player.WHITE) {
-			switch (x.type())
+			switch (x.type()) {
 				case "Knight":	takenWhiteKnight++;
 				break;
 				case "Rook":	takenWhiteRook++;
@@ -265,6 +281,7 @@ public class ChessModel implements IChessModel {
 				break;
 				case "Queen":	takenWhiteQueen++;
 				break;
+			}
 			
 		} else if (x.player() == Player.BLACK) {
 			switch (x.type())
