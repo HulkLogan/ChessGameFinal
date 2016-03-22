@@ -103,9 +103,9 @@ public class ChessModel implements IChessModel {
 			// Castle
 			if (pieceAt(move.fromRow, move.fromColumn).type() == "King" && 
 				Math.abs(move.fromColumn - move.toColumn) == 2) {
-				board[move.toRow][move.toColumn > 4 ? 7 : 0] = 
-					board[move.toRow][move.toColumn > 4 ? 
-						move.toColumn + 1 : move.toColumn - 1];
+				board[move.toRow][move.toColumn > 4 ? move.fromColumn + 1 : move.fromColumn - 1]
+					= board[move.toRow][move.toColumn > 4 ? 7 : 0];
+				board[move.toRow][move.toColumn > 4 ? 7 : 0] = null;
 			}
 			if(pieceAt(move.toRow, move.toColumn) != null) {
 				board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
