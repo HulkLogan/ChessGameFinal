@@ -284,7 +284,7 @@ public class ChessModel implements IChessModel {
 			}
 			
 		} else if (x.player() == Player.BLACK) {
-			switch (x.type())
+			switch (x.type()) {
 				case "Knight":	takenBlackKnight++;
 				break;
 				case "Rook":	takenBlackRook++;
@@ -295,6 +295,7 @@ public class ChessModel implements IChessModel {
 				break;
 				case "Queen":	takenBlackQueen++;
 				break;
+			}
 		}
 	}
 	
