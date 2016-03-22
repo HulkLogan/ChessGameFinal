@@ -26,7 +26,7 @@ public abstract class ChessPiece implements IChessPiece {
 	public boolean isThreatened() {
 		for (int r = 0; r < 8; r++) {
 			for (int c = 0; c < 8; c++ /*best language*/) {
-				if (board[r][c].isValidMove(move(r, c, row, column),
+				if (board[r][c].isValidMove(new Move(r, c, row, column),
 					board))
 					return true;
 			}
@@ -54,13 +54,15 @@ public abstract class ChessPiece implements IChessPiece {
 	 	board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
 	 	board[move.fromRow][move.fromColumn] = null;
 	 	
+	 	//remove own king from board parameter, preventing recursion if it's
+	 	//necessary to check a spot attacked by both kings
 	 	for(int r = 0; r < 8; r++)
 	 	{
 	 		for (int c = 0; r < 8; c++ /* still best language */)
 	 			if (board[r][c].type().equals("King") && board[r][c].player() == 
 	 				this.owner)
 	 				board[r][c] = null;
-	 				if  (board[r][c].isThreatened())
+	 				if  ((ChessPiece) board[r][c].isThreatened())
 	 					return false;
 	 	}
 	 	return true;
