@@ -1,12 +1,8 @@
 package chess;
 
-/******************************************************************
- * The specific variations to ChessPiece that make a King.  
- * @author Logan R. Crowe, Jake Young, Henry McDonough
- *****************************************************************/
 public class King extends ChessPiece{
   
-	private Player owner;
+private Player owner;
 	
 	protected King(Player player) {
 		super(player);
@@ -21,24 +17,8 @@ public class King extends ChessPiece{
 		return owner;
 	}
 	
-	/*****************************************************************
-	 * Returns whether a move is allowed for a King
-	 *****************************************************************/
 	public boolean isValidMove(Move move, IChessPiece[][] board) {
-		int firstRank = (this.owner == Player.WHITE) ? 0 : 7;
 		if(super.isValidMove(move, board)) {
-			if (!this.hasMoved && Math.abs(move.toColumn - move.fromColumn) == 2 &&
-				move.toRow == firstRank)
-				boolean kingside = move.toColumn > 4;
-				if (!board[firstRank][0].hasMoved()) {
-					for (int n = 4; n != kingside ? 8 : -1; n += kingside ? 1 : -1)
-					{
-						if (board[firstRank][n] != null || (ChessPiece)
-							|| (board[firstRank][n].isThreatened() &&
-							Math.abs(n-4) <= 2))
-							return false;
-					}
-				}
 			if (Math.abs(move.toRow - move.fromRow) > 1 || 
 					Math.abs(move.toColumn - move.fromColumn) > 1) {
 				return false;
@@ -47,6 +27,6 @@ public class King extends ChessPiece{
 				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 }

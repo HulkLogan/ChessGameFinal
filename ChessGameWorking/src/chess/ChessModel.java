@@ -1,10 +1,5 @@
 package chess;
-/******************************************************************
- * ChessModel() does the bulk of the work for ChessGame. The board
- * and all of the pieces are created and held here, and most of the
- * more complicated game elements are located here. 
- * @author Logan R. Crowe, Jake Young, Henry McDonough
- *****************************************************************/
+
 import java.awt.Panel;
 import java.util.ArrayList;
 
@@ -12,43 +7,22 @@ import javax.swing.JOptionPane;
 
 public class ChessModel implements IChessModel {
 	
-	/**array to hold the board pieces*/
 	private IChessPiece[][] board;
-	
-	/**the current Player**/
 	private Player player;
-	
-	/**the current piece*/
 	public IChessPiece currentPiece;
+	public int takenBlackKnight = 0;
+	public int takenWhiteKnight = 0;
+	public int takenBlackBishop = 0;
+	public int takenWhiteBishop = 0;
+	public int takenBlackRook = 0;
+	public int takenWhiteRook = 0;
+	public int takenBlackPawn = 0;
+	public int takenWhitePawn = 0;
+	public int takenBlackQueen = 0;
+	public int takenWhiteQueen = 0;
+	//declare other instance variables as needed
 	
-	/**holds the number of pieces taken during the game*/
-	public int takenBlackKnight;
-	public int takenWhiteKnight;
-	public int takenBlackBishop;
-	public int takenWhiteBishop;
-	public int takenBlackRook;
-	public int takenWhiteRook;
-	public int takenBlackPawn;
-	public int takenWhitePawn;
-	public int takenBlackQueen;
-	public int takenWhiteQueen;
-
-	/*****************************************************************
-	 * The main method sets up the board and all of the pieces
-	 *****************************************************************/
 	public ChessModel() {
-		
-		takenBlackKnight = 0;
-		takenWhiteKnight = 0;
-		takenBlackBishop = 0;
-		takenWhiteBishop = 0;
-		takenBlackRook = 0;
-		takenWhiteRook = 0;
-		takenBlackPawn = 0;
-		takenWhitePawn = 0;
-		takenBlackQueen = 0;
-		takenWhiteQueen = 0;
-
 		board = new IChessPiece[8][8];
 		player = Player.WHITE;
 		
@@ -92,96 +66,44 @@ public class ChessModel implements IChessModel {
 		
 		//finish
 	}
-	
-	/*****************************************************************
-	 * For the game to be over, one player must have a king in check,
-	 * be unable to move it out of check, and unable to remove the 
-	 * threat. 
-	 * @return false - game is not complete
-	 * @return true - game is complete
-	 *****************************************************************/
+
 	@Override
-	public boolean isComplete() {
-		for (int r = 0; r < 8; r++) {
-			for (int c = 0; c < 8; c++) {
-				if (pieceAt(r, c).type() == "King" 
-						&& pieceAt(r,c).player() == currentPlayer()
-						&& squareIsThreatened(r,c)
-						&& !kingCanMove(r,c)
-						&& !canRemoveThreat(r,c)){
-					return true;
-				}
-				else {
-					return false;
-				}
-			}
-		}
+	public boolean isComplete() {	
+		for (int r = 0; r < 8; r++) 
+			for (int c = 0; c < 8; c++) 
+				if(pieceAt(r, c) != null) 
+					if(pieceAt(r, c).type() == "King") 
+						if(pieceAt(r, c).player() == currentPlayer()) 
+							if(canKingMove(r, c, currentPlayer()) == false)
+								if(canRemoveThreat(r, c) == false)
+									return true;
 		return false;
+								
 	}
-	
-	/****************************************************************
-	 * Asks the piece if it's a valid move.
-	 * @param move - a Move that need to be verified for validity
-	 * @return false - move is not a valid Move
-	 * @return true - move is a valid Move
-	 ****************************************************************/
+
 	@Override
 	public boolean isValidMove(Move move) {
-		if(pieceAt(move.fromRow, move.fromColumn).isValidMove(move, board)) {
-			return true;
+		try {
+			if(pieceAt(move.fromRow, move.fromColumn).isValidMove(move, board)) {
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
-		else {
+		catch(NullPointerException e) {
 			return false;
 		}
 	}
-	
-	/****************************************************************
-	 * Moves the piece. 
-	 * @param move - the Move that needs to be performed
-	 ****************************************************************/
+
 	@Override
 	public void move(Move move) {
 		if(isValidMove(move)) {
-			// Castle
-			if (pieceAt(move.fromRow, move.fromColumn).type() == "King" && 
-				Math.abs(move.fromColumn - move.toColumn) == 2) {
-				board[move.toRow][move.toColumn > 4 ? move.fromColumn + 1 : move.fromColumn - 1]
-					= board[move.toRow][move.toColumn > 4 ? 7 : 0];
-				board[move.toRow][move.toColumn > 4 ? 7 : 0] = null;
-			}
 			if(pieceAt(move.toRow, move.toColumn) != null) {
 				board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-				setNextPlayer();
 			}
 			board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
 			board[move.fromRow][move.fromColumn] = null;
-						ChessPiece newPiece;
-			Player owner = board[move.toRow][move.toRow].player();
-			
-			//Kludgey way to cast the IChessPiece in the 2D array and make it update its
-			//hasMoved.
-			switch (board[move.toRow][move.toRow].type()) {
-				case "King":
-						newPiece = new King(owner);
-						newPiece.isNowMoved();
-						board[move.toRow][move.toRow] = newPiece;
-						break;
-				
-				case "Pawn":
-						newPiece = new Pawn(owner);
-						newPiece.isNowMoved();
-						board[move.toRow][move.toRow] = newPiece;
-						break;
-				
-				case "Rook":
-						newPiece = new Rook(owner);
-						newPiece.isNowMoved();
-						board[move.toRow][move.toRow] = newPiece;
-						break;
-				
-			}
-			
-			setNextPlayer();
 			setNextPlayer();
 		}
 		else {
@@ -190,146 +112,213 @@ public class ChessModel implements IChessModel {
 		currentPiece = null;
 	}
 	
-	/****************************************************************
-	 * Verifies if player p's King is in check
-	 * @param p - the player that need to verifiy if they are checked
-	 * @return false - if the player is not in check
-	 * @return true - if the player is in check
-	 ****************************************************************/
 	@Override
 	public boolean inCheck(Player p){
+		Move temp = new Move();
 		for (int r = 0; r < 8; r++) {
 			for (int c = 0; c < 8; c++) {
-				if (pieceAt(r, c).type() == "King" 
-					&& pieceAt(r,c).player() == p
-					&& squareIsThreatened(r,c)){
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	/****************************************************************
-	 * Check if a certain square is threatened.
-	 * @param Row - int that is the squares row location
-	 * @param Col - int that is the squares column location
-	 * @return false - the square is not threatened
-	 * @return true - the square is threatened
-	 ****************************************************************/
-	public boolean squareIsThreatened(int Row, int Col) {
-		for (int r = 0; r < 8; r++) {
-			for (int c = 0; c < 8; c++) {
-				Move temp = new Move(r, c, Row, Col);
-				if (pieceAt(r, c).isValidMove(temp,
-						board))
-					return true;
-			}
-		}
-		return false;
-	}
-	
-	/****************************************************************
-	 * Checks to see if the King can move.
-	 * @param kingRow - int for the King's row location
-	 * @param kingCol - int for the King's column location
-	 * @return false - the King can not move
-	 * @return true - the King can move
-	 ****************************************************************/
-	public boolean kingCanMove(int kingRow, int kingCol){
-		boolean canMove = false;
-		for(int a = kingRow-1; a <= kingRow+1; a++) {
-			for(int b = kingCol-1; b <= kingCol+1; b++) {
-				if(!squareIsThreatened(a,b) 
-					&& (a != kingRow) 
-					&& (b != kingCol)){
-						canMove = true;
-				}
-			}
-		}
-		return canMove;
-	}
-	
-	/****************************************************************
-	 * Checks to see if a piece that is threatening a King can be 
-	 * removed and if that was the only threat.
-	 * @param kingRow - int for the King's row
-	 * @param kingCol - int for the King's column
-	 * @return false - removing a threatening piece does not remove 
-	 * the threat
-	 * @return true - removing a threatening piece does remove the
-	 * threat
-	 ****************************************************************/
-	public boolean canRemoveThreat(int kingRow, int kingCol){
-		IChessPiece[][] temp = board;
-		boolean canRemove = false;
-		int r;
-		int c;
-		//In case the inner loop has problems calling the counter from the outer loop
-		
-		for (r = 0; r < 8; r++) {
-			for (c = 0; c < 8; c++) {
-				Move x = new Move(r, c, kingRow, kingCol);
-				if (pieceAt(r, c).isValidMove(x, board)){
-					temp[r][c] = null;
-					if(!squareIsThreatened(kingRow,kingCol)){
-						canRemove = true;
+				if(board[r][c] != null) {
+					if(pieceAt(r, c).type() == "King" && pieceAt(r, c).player() == p) {
+						temp.toRow = r;
+						temp.toColumn = c;
 					}
 				}
 			}
 		}
-		return canRemove;
+		for(int a = 0; a < 8; a++) {
+			for(int b = 0; b < 8; b++) {
+				if(board[a][b] != null) {
+					if(pieceAt(a, b).player() != p) {
+						temp.fromRow = a;
+						temp.fromColumn = b;
+						if(pieceAt(a, b).isValidMove(temp, board)) {
+							return true;
+						}
+						else {
+							return false;
+						}
+					}
+				}
+			}
+		}
+		return false;
 	}
 
-	/****************************************************************
-	 * The current Player
-	 * @return currentPlayer() - current player
-	 ****************************************************************/
+
+	public boolean squareIsThreatened(int Row, int Col, Player p) {
+		for (int a = 0; a < 8; a++) {
+			for (int b = 0; b < 8; b++) {
+				if(pieceAt(a, b) != null) {
+					if(pieceAt(a, b).player() != p) {
+						Move temp = new Move(a, b, Row, Col);
+						if (pieceAt(a, b).isValidMove(temp, board))
+							return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean canKingMove(int row, int col, Player p) {
+		for(int r = row-1; r <= row+1; r++) {
+			for(int c = col-1; c <= col+1; c++) {
+				if(r < 8 && r > -1 && c < 8 && c > -1) {
+					if(pieceAt(r, c) != null) {
+						if(pieceAt(r, c).player() != currentPlayer()) {
+							if(squareIsThreatened(r, c, p) == false) {
+								return true;
+							}
+							return false;
+						}
+					}
+					else {
+						if(squareIsThreatened(r, c, p) == false) {
+							return true;
+						}
+						return false;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	public boolean canRemoveThreat(int row, int col) {
+		for (int r = 0; r < 8; r++) {
+			for (int c = 0; c < 8; c++) {
+				if (pieceAt(r, c) != null) {
+					if (pieceAt(r, c).player() != currentPlayer()) {
+						Move temp = new Move(r, c, row, col);
+						if (pieceAt(r, c).isValidMove(temp, board)) {
+							for (int a = 0; a < 8; a++) {
+								for (int b = 0; b < 8; b++) {
+									if (pieceAt(a, b) != null) {
+										if (pieceAt(a, b).player() == currentPlayer()) {
+											// piece at ab is the attacking
+											// friendly
+											for (int x = 0; x < 8; x++) {
+												for (int y = 0; y < 8; y++) {
+													Move j = new Move(a, b, x, y);
+													if (pieceAt(a, b).isValidMove(j, board)) {
+														if (!inCheck(currentPlayer())) {
+															return true;
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+//	public boolean canRemoveThreat(int row, int col) {
+//		for (int r = 0; r < 8; r++) {
+//			for (int c = 0; c < 8; c++) {
+//				if (pieceAt(r, c) != null) {
+//					if (pieceAt(r, c).player() != currentPlayer()) {
+//						Move temp = new Move(r, c, row, col);
+//						if (pieceAt(r, c).isValidMove(temp, board)) {
+//							for (int a = 0; a < 8; a++) {
+//								for (int b = 0; b < 8; b++) {
+//									if (pieceAt(a, b) != null) {
+//										Move x = new Move(a, b, r, c);
+//										if (pieceAt(a, b).isValidMove(x, board)) {
+//											if(inCheck(currentPlayer()) == false) {
+//												return true;
+//											}
+//										}
+//									}
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//		return false;
+//	}
+//	public boolean canRemoveThreat(int kingRow, int kingCol){
+//		boolean canRemove = false;
+//		for (int r = 0; r < 8; r++) {
+//			for (int c = 0; c < 8; c++) {
+//				if(pieceAt(r, c) != null) {
+//					if(pieceAt(r, c).player() != currentPlayer()) {
+//						Move x = new Move(r, c, kingRow, kingCol);
+//						if (pieceAt(r, c).isValidMove(x, board)){
+//							IChessPiece temp = pieceAt(r, c);
+//							for (int a = 0; a < 8; r++) {
+//								for(int b = 0; b < 8; b++) {
+//									if(pieceAt(a, b) != null) {
+//										if(pieceAt(a, b).player() == currentPlayer()) {
+//											Move y = new Move(a, b, r, c);
+//											if(pieceAt(a, b).isValidMove(y, board)) {
+//												canRemove = true;
+//											}
+//										}
+//									}
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//		return canRemove;
+//	}
+
+
 	@Override
 	public Player currentPlayer() {
 		return player;
 	}
 	
-	/****************************************************************
-	 * Stores the number of pieces that are removed.
-	 * @param x - IChessPiece that is to be removed
-	 ****************************************************************/
 	public void removePiece(IChessPiece x) {
 		if (x.player() == Player.WHITE) {
-			switch (x.type()) {
-				case "Knight":	takenWhiteKnight++;
-				break;
-				case "Rook":	takenWhiteRook++;
-				break;
-				case "Bishop":	takenWhiteBishop++;
-				break;
-				case "Pawn":	takenWhitePawn++;
-				break;
-				case "Queen":	takenWhiteQueen++;
-				break;
+			if (x.type() == "Knight") {
+				takenWhiteKnight++;
+			} 
+			else if (x.type() == "Rook") {
+				takenWhiteRook++;
+			} 
+			else if (x.type() == "Bishop") {
+				takenWhiteBishop++;
 			}
-			
+			else if(x.type() == "Pawn") {
+				takenWhitePawn++;
+			}
+			else if(x.type() == "Queen") {
+				takenWhiteQueen++;
+			}
 		} else if (x.player() == Player.BLACK) {
-			switch (x.type()) {
-				case "Knight":	takenBlackKnight++;
-				break;
-				case "Rook":	takenBlackRook++;
-				break;
-				case "Bishop":	takenBlackBishop++;
-				break;
-				case "Pawn":	takenBlackPawn++;
-				break;
-				case "Queen":	takenBlackQueen++;
-				break;
+			if (x.type() == "Knight") {
+				takenBlackKnight++;
+			} 
+			else if (x.type() == "Rook") {
+				takenBlackRook++;
+			} 
+			else if (x.type() == "Bishop") {
+				takenBlackBishop++;
+			}
+			else if(x.type() == "Pawn") {
+				takenBlackPawn++;
+			}
+			else if(x.type() == "Queen") {
+				takenBlackQueen++;
 			}
 		}
 	}
 	
-	/**number of rows*/
 	public int numRows() {
 		return 8;
 	}
-	/**number of columns*/
+	
 	public int numColumns() {
 		return 8;
 	}
@@ -381,5 +370,8 @@ public class ChessModel implements IChessModel {
 	public int getTakenWhiteQueen() {
 		return takenWhiteQueen;
 	}
+	
+	
+	//add other public or helper methods as needed
 
 }
