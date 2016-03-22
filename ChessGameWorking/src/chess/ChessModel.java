@@ -100,6 +100,13 @@ public class ChessModel implements IChessModel {
 	@Override
 	public void move(Move move) {
 		if(isValidMove(move)) {
+			// Castle
+			if (pieceAt(move.fromRow, move.fromColumn).type() == "King" && 
+				Math.abs(move.fromColumn - move.toColumn) == 2) {
+				board[move.toRow][move.toColumn > 4 ? 7 : 0] = 
+					board[move.toRow][move.toColumn > 4 ? 
+						move.toColumn + 1 : move.toColumn - 1];
+			}
 			if(pieceAt(move.toRow, move.toColumn) != null) {
 				board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
 				setNextPlayer();
