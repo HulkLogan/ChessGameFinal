@@ -1,5 +1,8 @@
 package chess;
-
+/******************************************************************
+ * The specific variations to ChessPiece that make a Knight.  
+ * @author Logan R. Crowe, Jake Young, Henry McDonough
+ *****************************************************************/
 public class Knight extends ChessPiece {
 
 	protected Knight(Player player) {
@@ -18,7 +21,9 @@ public class Knight extends ChessPiece {
 	public Player player() {
 		return owner;
 	}
-	
+	/*****************************************************************
+	 * Returns whether a move is allowed for a Knight
+	 *****************************************************************/
 	public boolean isValidMove(Move move, IChessPiece[][] board) {
 		if(super.isValidMove(move, board)) {
 			//checks that the move is either two(2) rows and one(1) column or 
