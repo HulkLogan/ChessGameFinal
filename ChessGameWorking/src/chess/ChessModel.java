@@ -155,7 +155,33 @@ public class ChessModel implements IChessModel {
 			}
 			board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
 			board[move.fromRow][move.fromColumn] = null;
-			(ChessPiece) board[move.toRow][move.toColumn].isNowMoved(); 
+						ChessPiece newPiece;
+			Player owner = board[move.toRow][move.toRow].player();
+			
+			//Kludgey way to cast the IChessPiece in the 2D array and make it update its
+			//hasMoved.
+			switch (board[move.toRow][move.toRow].type()) {
+				case "King":
+						newPiece = new King(owner);
+						newPiece.isNowMoved();
+						board[move.toRow][move.toRow] = newPiece;
+						break;
+				
+				case "Pawn":
+						newPiece = new Pawn(owner);
+						newPiece.isNowMoved();
+						board[move.toRow][move.toRow] = newPiece;
+						break;
+				
+				case "Rook":
+						newPiece = new Rook(owner);
+						newPiece.isNowMoved();
+						board[move.toRow][move.toRow] = newPiece;
+						break;
+				
+			}
+			
+			setNextPlayer();
 			setNextPlayer();
 		}
 		else {
