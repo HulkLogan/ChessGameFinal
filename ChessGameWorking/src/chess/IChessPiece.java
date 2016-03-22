@@ -39,6 +39,13 @@ public interface IChessPiece {
 	boolean isValidMove(Move move, IChessPiece[][] board);
 	
 	/**
+	 * Returns whether the piece is under attack.
+	 * 
+	 * @return whether the piece is under attack
+	 */
+	boolean isThreatened();
+	
+	/**
 	 * Confirms that the piece has moved from its original position.
 	 */
 	void isNowMoved();
