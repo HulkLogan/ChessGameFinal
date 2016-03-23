@@ -228,7 +228,8 @@ public class ChessModel implements IChessModel {
 							options, options[0]);
 					if(n == 0) {
 						if(getTakenBlackRook() > 0) {
-							temp = new Rook(Player.WHITE);
+							temp = null;
+							board[0][a] = new Rook(Player.WHITE);
 						}
 						else {
 							JOptionPane.showMessageDialog(null, "You do not have any Rooks");
@@ -236,7 +237,8 @@ public class ChessModel implements IChessModel {
 					}
 					if(n == 1) {
 						if(getTakenBlackBishop() > 0) {
-							temp = new Bishop(Player.WHITE);
+							temp = null;
+							board[0][a] = new Bishop(Player.WHITE);
 						}
 						else {
 							JOptionPane.showMessageDialog(null, "You do not have any Bishops");
@@ -244,7 +246,8 @@ public class ChessModel implements IChessModel {
 					}
 					if(n == 2) {
 						if(getTakenBlackKnight() > 0) {
-							temp = new Knight(Player.WHITE);
+							temp = null;
+							board[0][a] = new Knight(Player.WHITE);
 						}
 						else {
 							JOptionPane.showMessageDialog(null, "You do not have any Knights");
@@ -262,7 +265,8 @@ public class ChessModel implements IChessModel {
 							options, options[0]);
 					if(n == 0) {
 						if(getTakenWhiteRook() > 0) {
-							temp = new Rook(Player.BLACK);
+							temp = null;
+							board[7][a] = new Rook(Player.BLACK);
 						}
 						else {
 							JOptionPane.showMessageDialog(null, "You do not have any Rooks");
@@ -270,7 +274,8 @@ public class ChessModel implements IChessModel {
 					}
 					if(n == 1) {
 						if(getTakenWhiteBishop() > 0) {
-							temp = new Bishop(Player.BLACK);
+							temp = null;
+							board[7][a] = new Bishop(Player.BLACK);
 						}
 						else {
 							JOptionPane.showMessageDialog(null, "You do not have any Bishops");
@@ -278,7 +283,8 @@ public class ChessModel implements IChessModel {
 					}
 					if(n == 2) {
 						if(getTakenWhiteKnight() > 0) {
-							temp = new Knight(Player.BLACK);
+							temp = null;
+							board[7][a] = new Knight(Player.BLACK);
 						}
 						else {
 							JOptionPane.showMessageDialog(null, "You do not have any Knights");
