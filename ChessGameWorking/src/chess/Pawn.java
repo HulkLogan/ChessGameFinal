@@ -6,9 +6,8 @@ import javax.swing.JLabel;
 public class Pawn extends ChessPiece {
 	
 	private Player owner;
-	private boolean hasMoved = false;
-	
-	
+	public boolean hasMoved = false;
+
 	protected Pawn(Player player) {
 		super(player);
 		this.owner = player;
@@ -123,5 +122,13 @@ public class Pawn extends ChessPiece {
 			}
 		}
 		return false;
+	}
+	
+	public boolean getHasMoved() {
+		return hasMoved;
+	}
+
+	public void setHasMoved(boolean hasMoved) {
+		this.hasMoved = hasMoved;
 	}
 }

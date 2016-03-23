@@ -38,7 +38,7 @@ public class ChessPanel extends JPanel {
 	private JLabel bishopW;
 	private JLabel rookW;
 	private JLabel queenW;
-	private Icon forJop;
+	private JButton castling;
 	
 	//Images
 	private Image bPawn;
@@ -75,16 +75,6 @@ public class ChessPanel extends JPanel {
 		
 		addIcons();
 		model = new ChessModel();
-//		Object[] options = { "Yes", "also yes" };
-//		int n = JOptionPane.showOptionDialog(null, "Would you like to play chess?", "Main Menu",
-//		    JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, 
-//		    options, options[0]);
-//		if(n == 0) {
-//			model.setPlayer(Player.WHITE);
-//		}
-//		if(n == 1) {
-//			model.setPlayer(Player.BLACK);
-//		}
 		JPanel center = new JPanel();
 		center.setLayout(new GridLayout(8, 8));
 		add(center, BorderLayout.CENTER);
@@ -129,6 +119,9 @@ public class ChessPanel extends JPanel {
 		rookB = new JLabel();
 		rookB.setIcon(blackRook);
 		rightSide.add(rookB);
+		
+		castling = new JButton("Castle");
+		rightSide.add(castling);
 		
 		for(int row = 0; row < 8; row++) {
 			for(int col = 0; col < 8; col++) {
@@ -261,7 +254,29 @@ public class ChessPanel extends JPanel {
 	public void highlight(int x, int y) {
 		IChessPiece temp = model.pieceAt(x, y);
 		if(temp.type() == "Pawn") {
-			board[x][y].setBackground(Color.GREEN);
+			if(((Pawn) temp).getHasMoved() == false) {
+				board[x+1][y].setBackground(Color.GREEN);
+				board[x+2][y].setBackground(Color.GREEN);
+				if(model.pieceAt(x+1, y+1) != null && 
+						model.pieceAt(x+1, y+1).player() != model.currentPlayer()) {
+					board[x+1][y+1].setBackground(Color.GREEN);
+				}
+				if(model.pieceAt(x+1, y-1) != null && 
+						model.pieceAt(x+1, y-1).player() != model.currentPlayer()) {
+					board[x+1][y-1].setBackground(Color.GREEN);
+				}
+			}
+			else {
+				board[x+1][y].setBackground(Color.GREEN);
+				if(model.pieceAt(x+1, y+1) != null && 
+						model.pieceAt(x+1, y+1).player() != model.currentPlayer()) {
+					board[x+1][y+1].setBackground(Color.GREEN);
+				}
+				if(model.pieceAt(x+1, y-1) != null && 
+						model.pieceAt(x+1, y-1).player() != model.currentPlayer()) {
+					board[x+1][y-1].setBackground(Color.GREEN);
+				}
+			}
 		}
 		else {
 			for(int t = 0; t < 8; t++) {
@@ -270,16 +285,6 @@ public class ChessPanel extends JPanel {
 					currentMove.toColumn = g;
 					if(model.isValidMove(currentMove)) {
 						board[t][g].setBackground(Color.GREEN);
-//						for(int a = 0; a < 8; a++) {
-//							for(int b = 0; b < 8; b++) {
-//								if(model.pieceAt(a, b) != null) {
-//									Move red = new Move(a, b, t, g);
-//									if(model.isValidMove(red)) {
-//										board[t][g].setBackground(Color.RED);
-//									}
-//								}
-//							}
-//						}
 					}
 				}
 			}
