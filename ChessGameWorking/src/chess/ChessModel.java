@@ -75,7 +75,7 @@ public class ChessModel implements IChessModel {
 					if(pieceAt(r, c).type() == "King") 
 						if(pieceAt(r, c).player() == currentPlayer()) 
 							if(canKingMove(r, c, currentPlayer()) == false)
-								if(canRemoveThreat(r, c) == false)
+								if(canRemoveThreat(r, c, currentPlayer()) == false)
 									return true;
 		return false;
 								
@@ -100,10 +100,12 @@ public class ChessModel implements IChessModel {
 	public void move(Move move) {
 		if(isValidMove(move)) {
 			if(pieceAt(move.toRow, move.toColumn) != null) {
+				removePiece(pieceAt(move.toRow, move.toColumn));
 				board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
 			}
 			board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
 			board[move.fromRow][move.fromColumn] = null;
+			promotion();
 			setNextPlayer();
 		}
 		else {
@@ -133,9 +135,6 @@ public class ChessModel implements IChessModel {
 						temp.fromColumn = b;
 						if(pieceAt(a, b).isValidMove(temp, board)) {
 							return true;
-						}
-						else {
-							return false;
 						}
 					}
 				}
@@ -184,53 +183,23 @@ public class ChessModel implements IChessModel {
 		return false;
 	}
 
-	public boolean canRemoveThreat(int row, int col) {
-		for (int r = 0; r < 8; r++) {
-			for (int c = 0; c < 8; c++) {
-				if (pieceAt(r, c) != null) {
-					if (pieceAt(r, c).player() != currentPlayer()) {
-						Move temp = new Move(r, c, row, col);
-						if (pieceAt(r, c).isValidMove(temp, board)) {
-							for (int a = 0; a < 8; a++) {
-								for (int b = 0; b < 8; b++) {
-									if (pieceAt(a, b) != null) {
-										if (pieceAt(a, b).player() == currentPlayer()) {
-											// piece at ab is the attacking
-											// friendly
-											for (int x = 0; x < 8; x++) {
-												for (int y = 0; y < 8; y++) {
-													Move j = new Move(a, b, x, y);
-													if (pieceAt(a, b).isValidMove(j, board)) {
-														if (!inCheck(currentPlayer())) {
-															return true;
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
-//	public boolean canRemoveThreat(int row, int col) {
-//		for (int r = 0; r < 8; r++) {
-//			for (int c = 0; c < 8; c++) {
-//				if (pieceAt(r, c) != null) {
-//					if (pieceAt(r, c).player() != currentPlayer()) {
-//						Move temp = new Move(r, c, row, col);
-//						if (pieceAt(r, c).isValidMove(temp, board)) {
-//							for (int a = 0; a < 8; a++) {
-//								for (int b = 0; b < 8; b++) {
-//									if (pieceAt(a, b) != null) {
-//										Move x = new Move(a, b, r, c);
-//										if (pieceAt(a, b).isValidMove(x, board)) {
-//											if(inCheck(currentPlayer()) == false) {
+	public boolean canRemoveThreat(int row, int col, Player p) {
+//		//finds piece attacking king
+//		for(int r = 0; r < 8; r++) {
+//			for(int c = 0; c < 8; c++) {
+//				if(pieceAt(r, c) != null && pieceAt(r, c).player() != p) {
+//					Move temp = new Move(r, c, row, col);
+//					if(pieceAt(r, c).isValidMove(temp, board)) {
+//						//looks for friendly piece
+//						for(int a = 0; a < 8; a++) {
+//							for(int b = 0; b < 8; b++) {
+//								if(pieceAt(a, b) != null && pieceAt(a, b).player() == p) {
+//									IChessPiece savior = pieceAt(a, b);
+//									//checks for block/capture
+//									for(int x = 0; x < 8; x++) {
+//										for(int y = 0; y < 8; y++) {
+//											Move j = new Move(a, b, x, y);
+//											if(savior.isValidMove(j, board) && !inCheck(p)) {
 //												return true;
 //											}
 //										}
@@ -243,37 +212,154 @@ public class ChessModel implements IChessModel {
 //			}
 //		}
 //		return false;
-//	}
-//	public boolean canRemoveThreat(int kingRow, int kingCol){
-//		boolean canRemove = false;
-//		for (int r = 0; r < 8; r++) {
-//			for (int c = 0; c < 8; c++) {
-//				if(pieceAt(r, c) != null) {
-//					if(pieceAt(r, c).player() != currentPlayer()) {
-//						Move x = new Move(r, c, kingRow, kingCol);
-//						if (pieceAt(r, c).isValidMove(x, board)){
-//							IChessPiece temp = pieceAt(r, c);
-//							for (int a = 0; a < 8; r++) {
-//								for(int b = 0; b < 8; b++) {
-//									if(pieceAt(a, b) != null) {
-//										if(pieceAt(a, b).player() == currentPlayer()) {
-//											Move y = new Move(a, b, r, c);
-//											if(pieceAt(a, b).isValidMove(y, board)) {
-//												canRemove = true;
-//											}
-//										}
-//									}
-//								}
+		return false;
+	}
+	
+	public void promotion() {
+		for(int a = 0; a < 8; a++) {
+			if(currentPlayer() == Player.WHITE) {
+				//checks if correct piece
+				if(pieceAt(0, a) != null && pieceAt(0, a).type() == "Pawn"
+						&& pieceAt(0, a).player() == currentPlayer()) {
+					IChessPiece temp = pieceAt(0, a);
+					Object[] options = { "Rook", "Bishop", "Knight" };
+					int n = JOptionPane.showOptionDialog(null, "What piece would you like?", "Promotion",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, 
+							options, options[0]);
+					if(n == 0) {
+						if(getTakenBlackRook() > 0) {
+							temp = new Rook(Player.WHITE);
+						}
+						else {
+							JOptionPane.showMessageDialog(null, "You do not have any Rooks");
+						}
+					}
+					if(n == 1) {
+						if(getTakenBlackBishop() > 0) {
+							temp = new Bishop(Player.WHITE);
+						}
+						else {
+							JOptionPane.showMessageDialog(null, "You do not have any Bishops");
+						}
+					}
+					if(n == 2) {
+						if(getTakenBlackKnight() > 0) {
+							temp = new Knight(Player.WHITE);
+						}
+						else {
+							JOptionPane.showMessageDialog(null, "You do not have any Knights");
+						}
+					}
+				}
+			}
+			if(currentPlayer() == Player.BLACK) {
+				if(pieceAt(7, a) != null && pieceAt(7, a).type() == "Pawn"
+						&& pieceAt(7, a).player() == currentPlayer()) {
+					IChessPiece temp = pieceAt(7, a);
+					Object[] options = { "Rook", "Bishop", "Knight" };
+					int n = JOptionPane.showOptionDialog(null, "What piece would you like?", "Promotion",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, 
+							options, options[0]);
+					if(n == 0) {
+						if(getTakenWhiteRook() > 0) {
+							temp = new Rook(Player.BLACK);
+						}
+						else {
+							JOptionPane.showMessageDialog(null, "You do not have any Rooks");
+						}
+					}
+					if(n == 1) {
+						if(getTakenWhiteBishop() > 0) {
+							temp = new Bishop(Player.BLACK);
+						}
+						else {
+							JOptionPane.showMessageDialog(null, "You do not have any Bishops");
+						}
+					}
+					if(n == 2) {
+						if(getTakenWhiteKnight() > 0) {
+							temp = new Knight(Player.BLACK);
+						}
+						else {
+							JOptionPane.showMessageDialog(null, "You do not have any Knights");
+						}
+					}
+				}
+			}
+		}
+	}
+//	public void promotion(Player p) {
+//		for(int a = 0; a < 8; a++) {
+//			if(p == Player.WHITE) {
+//				if(pieceAt(0, a) != null) {
+//					if(pieceAt(0, a).type() == "Pawn") {
+//						Object[] options = { "Rook", "Bishop", "Knight" };
+//						int n = JOptionPane.showOptionDialog(null, "What piece would you like?", "Promotion",
+//								JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, 
+//								options, options[0]);
+//						if(n == 0) {
+//							if(getTakenBlackRook() > 0) {
+//								x = new Rook(Player.WHITE);
+//							}
+//							else {
+//								JOptionPane.showMessageDialog(null, "You do not have any Rooks");
+//							}
+//						}
+//						if(n == 1) {
+//							if(getTakenBlackBishop() > 0) {
+//								x = new Bishop(Player.WHITE);
+//							}
+//							else {
+//								JOptionPane.showMessageDialog(null, "You do not have any Bishops");
+//							}
+//						}
+//						if(n == 2) {
+//							if(getTakenBlackKnight() > 0) {
+//								x = new Knight(Player.WHITE);
+//							}
+//							else {
+//								JOptionPane.showMessageDialog(null, "You do not have any Knights");
+//							}
+//						}
+//					}
+//				}
+//			}
+//			if(p == Player.BLACK) {
+//				if(x == board[7][a]) {
+//					Object[] options = { "Rook", "Bishop", "Knight" };
+//					int n = JOptionPane.showOptionDialog(null, "What piece would you like?", "Promotion",
+//				    JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, 
+//				    options, options[0]);
+//					if(n == 0) {
+//						if(getTakenWhiteRook() > 0) {
+//							x = new Rook(Player.BLACK);
+//						}
+//						else {
+//							JOptionPane.showMessageDialog(null, "You do not have any Rooks");
+//						}
+//					}
+//					if(n == 1) {
+//						if(getTakenWhiteBishop() > 0) {
+//								x = new Bishop(Player.BLACK);
+//							}
+//							else {
+//								JOptionPane.showMessageDialog(null, "You do not have any Bishops");
+//							}
+//						}
+//						if(n == 2) {
+//							if(getTakenWhiteKnight() > 0) {
+//								x = new Knight(Player.BLACK);
+//							}
+//							else {
+//								JOptionPane.showMessageDialog(null, "You do not have any Knights");
 //							}
 //						}
 //					}
 //				}
 //			}
 //		}
-//		return canRemove;
 //	}
-
-
+	
 	@Override
 	public Player currentPlayer() {
 		return player;
@@ -329,6 +415,10 @@ public class ChessModel implements IChessModel {
 	
 	public void setNextPlayer() {
 		player = player.next();
+	}
+	
+	public void setPlayer(Player p) {
+		player = p;
 	}
 	
 	public void setCurrentPiece(IChessPiece p) {

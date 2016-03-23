@@ -75,6 +75,16 @@ public class ChessPanel extends JPanel {
 		
 		addIcons();
 		model = new ChessModel();
+//		Object[] options = { "Yes", "also yes" };
+//		int n = JOptionPane.showOptionDialog(null, "Would you like to play chess?", "Main Menu",
+//		    JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, 
+//		    options, options[0]);
+//		if(n == 0) {
+//			model.setPlayer(Player.WHITE);
+//		}
+//		if(n == 1) {
+//			model.setPlayer(Player.BLACK);
+//		}
 		JPanel center = new JPanel();
 		center.setLayout(new GridLayout(8, 8));
 		add(center, BorderLayout.CENTER);
@@ -316,7 +326,7 @@ public class ChessPanel extends JPanel {
 									else if(model.pieceAt(a, b).player() != model.currentPlayer()) {
 										currentMove.toRow = a;
 										currentMove.toColumn = b;
-										model.removePiece(model.pieceAt(a, b));
+										//model.removePiece(model.pieceAt(a, b));
 										model.move(currentMove);
 										displayBoard();
 										
@@ -364,8 +374,8 @@ public class ChessPanel extends JPanel {
 									currentMove.toColumn = b;
 									model.move(currentMove);
 									displayBoard();
-									if(model.inCheck(Player.WHITE) == true) {
-										if(model.isComplete() == true) {
+									if(model.inCheck(Player.WHITE)) {
+										if(model.isComplete()) {
 											int n = JOptionPane.showConfirmDialog(
 												    null,
 												    "Checkmate! Black Wins! \n Would you like to restart?",
@@ -382,8 +392,8 @@ public class ChessPanel extends JPanel {
 											JOptionPane.showMessageDialog(null, "White is in check!");
 										}
 									}
-									if(model.inCheck(Player.BLACK) == true) {
-										if(model.isComplete() == true) {
+									if(model.inCheck(Player.BLACK)) {
+										if(model.isComplete()) {
 											int n = JOptionPane.showConfirmDialog(
 												    null,
 												    "Checkmate! White Wins! \n Would you like to restart?",

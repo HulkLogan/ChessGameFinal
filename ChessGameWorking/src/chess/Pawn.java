@@ -73,6 +73,7 @@ public class Pawn extends ChessPiece {
 				}
 			}
 			else {
+				if(move.fromRow > 0)
 				//check if blocked
 				if(board[move.fromRow-1][move.fromColumn] != null) {
 					//check for attack
