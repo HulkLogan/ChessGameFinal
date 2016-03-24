@@ -1,5 +1,10 @@
 package chess;
-
+/******************************************************************
+ * ChessModel() does the bulk of the work for ChessGame. The board
+ * and all of the pieces are created and held here, and most of the
+ * more complicated game elements are located here. 
+ * @author Logan R. Crowe, Jake Young, Henry McDonough
+ *****************************************************************/
 import java.awt.Panel;
 import java.util.ArrayList;
 
@@ -7,8 +12,13 @@ import javax.swing.JOptionPane;
 
 public class ChessModel implements IChessModel {
 	
+	/**array to hold the board pieces*/
 	private IChessPiece[][] board;
+	
+	/**the current Player**/
 	private Player player;
+	
+	/**the current piece*/
 	public IChessPiece currentPiece;
 	public int takenBlackKnight = 0;
 	public int takenWhiteKnight = 0;
@@ -66,7 +76,14 @@ public class ChessModel implements IChessModel {
 		
 		//finish
 	}
-
+	
+	/*****************************************************************
+	 * For the game to be over, one player must have a king in check,
+	 * be unable to move it out of check, and unable to remove the 
+	 * threat. 
+	 * @return false - game is not complete
+	 * @return true - game is complete
+	 *****************************************************************/
 	@Override
 	public boolean isComplete() {	
 		for (int r = 0; r < 8; r++) 
@@ -80,7 +97,13 @@ public class ChessModel implements IChessModel {
 		return false;
 								
 	}
-
+	
+	/****************************************************************
+	 * Asks the piece if it's a valid move.
+	 * @param move - a Move that need to be verified for validity
+	 * @return false - move is not a valid Move
+	 * @return true - move is a valid Move
+	 ****************************************************************/
 	@Override
 	public boolean isValidMove(Move move) {
 		try {
@@ -95,7 +118,11 @@ public class ChessModel implements IChessModel {
 			return false;
 		}
 	}
-
+	
+	/****************************************************************
+	 * Moves the piece. 
+	 * @param move - the Move that needs to be performed
+	 ****************************************************************/
 	@Override
 	public void move(Move move) {
 		if(isValidMove(move)) {
@@ -112,6 +139,12 @@ public class ChessModel implements IChessModel {
 		currentPiece = null;
 	}
 	
+	/****************************************************************
+	 * Verifies if player p's King is in check
+	 * @param p - the player that need to verifiy if they are checked
+	 * @return false - if the player is not in check
+	 * @return true - if the player is in check
+	 ****************************************************************/
 	@Override
 	public boolean inCheck(Player p){
 		Move temp = new Move();
@@ -273,12 +306,19 @@ public class ChessModel implements IChessModel {
 //		return canRemove;
 //	}
 
-
+	/****************************************************************
+	 * The current Player
+	 * @return currentPlayer() - current player
+	 ****************************************************************/
 	@Override
 	public Player currentPlayer() {
 		return player;
 	}
 	
+	/****************************************************************
+	 * Stores the number of pieces that are removed.
+	 * @param x - IChessPiece that is to be removed
+	 ****************************************************************/
 	public void removePiece(IChessPiece x) {
 		if (x.player() == Player.WHITE) {
 			if (x.type() == "Knight") {
@@ -315,10 +355,11 @@ public class ChessModel implements IChessModel {
 		}
 	}
 	
+	/**number of rows*/
 	public int numRows() {
 		return 8;
 	}
-	
+	/**number of columns*/
 	public int numColumns() {
 		return 8;
 	}
