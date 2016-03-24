@@ -3,6 +3,7 @@ package chess;
 public class King extends ChessPiece{
   
 private Player owner;
+public boolean hasMoved = false;
 	
 	protected King(Player player) {
 		super(player);
@@ -24,6 +25,7 @@ private Player owner;
 				return false;
 			}
 			else {
+				hasMoved = true;
 				return true;
 			}
 		}

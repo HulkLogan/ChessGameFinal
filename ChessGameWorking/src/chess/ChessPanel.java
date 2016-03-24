@@ -121,6 +121,7 @@ public class ChessPanel extends JPanel {
 		rightSide.add(rookB);
 		
 		castling = new JButton("Castle");
+		castling.addMouseListener(listener);
 		rightSide.add(castling);
 		
 		for(int row = 0; row < 8; row++) {
@@ -253,43 +254,37 @@ public class ChessPanel extends JPanel {
 	
 	public void highlight(int x, int y) {
 		IChessPiece temp = model.pieceAt(x, y);
-		if(temp.type() == "Pawn") {
-			if(((Pawn) temp).getHasMoved() == false) {
-				board[x+1][y].setBackground(Color.GREEN);
-				board[x+2][y].setBackground(Color.GREEN);
-				if(model.pieceAt(x+1, y+1) != null && 
-						model.pieceAt(x+1, y+1).player() != model.currentPlayer()) {
-					board[x+1][y+1].setBackground(Color.GREEN);
-				}
-				if(model.pieceAt(x+1, y-1) != null && 
-						model.pieceAt(x+1, y-1).player() != model.currentPlayer()) {
-					board[x+1][y-1].setBackground(Color.GREEN);
-				}
-			}
-			else {
-				board[x+1][y].setBackground(Color.GREEN);
-				if(model.pieceAt(x+1, y+1) != null && 
-						model.pieceAt(x+1, y+1).player() != model.currentPlayer()) {
-					board[x+1][y+1].setBackground(Color.GREEN);
-				}
-				if(model.pieceAt(x+1, y-1) != null && 
-						model.pieceAt(x+1, y-1).player() != model.currentPlayer()) {
-					board[x+1][y-1].setBackground(Color.GREEN);
-				}
-			}
-		}
-		else {
 			for(int t = 0; t < 8; t++) {
 				for(int g = 0; g < 8; g++) {
-					currentMove.toRow = t;
-					currentMove.toColumn = g;
-					if(model.isValidMove(currentMove)) {
-						board[t][g].setBackground(Color.GREEN);
+					if(temp.type() == "Pawn") {
+						boolean p = ((Pawn) temp).getHasMoved();
+						if(p == false) {
+							currentMove.toRow = t;
+							currentMove.toColumn = g;
+							if(model.isValidMove(currentMove)) {
+								board[t][g].setBackground(Color.GREEN);
+							}
+							((Pawn) temp).hasMoved = false;
+						}
+						else {
+							currentMove.toRow = t;
+							currentMove.toColumn = g;
+							if(model.isValidMove(currentMove)) {
+								board[t][g].setBackground(Color.GREEN);
+							}
+						}
+					}
+					else {
+						currentMove.toRow = t;
+						currentMove.toColumn = g;
+						if(model.isValidMove(currentMove)) {
+							board[t][g].setBackground(Color.GREEN);
+						}
 					}
 				}
 			}
 		}
-	}
+//	}
 	
 	public void reset() {
 		model = new ChessModel();
@@ -318,6 +313,22 @@ public class ChessPanel extends JPanel {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
+				if(e.getSource() == castling) {
+					Object[] options = { "Left", "Right" };
+					int n = JOptionPane.showOptionDialog(null, "Which side would you like to castle with?", "Castling",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, 
+							options, options[0]);
+					if(n == 0) {
+						//left
+						model.castling("Left");
+						displayBoard();
+					}
+					if(n == 1) {
+						//right
+						model.castling("Right");
+						displayBoard();
+					}
+				}
 				for(int a = 0; a < 8; a++) {
 					for(int b = 0; b < 8; b++) {
 						if(e.getSource() == board[a][b]) {

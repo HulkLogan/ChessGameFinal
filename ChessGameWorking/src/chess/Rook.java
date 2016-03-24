@@ -1,6 +1,8 @@
 package chess;
 
 public class Rook extends ChessPiece {
+	
+	public boolean hasMoved = false;
 
 	protected Rook(Player player) {
 		super(player);
@@ -36,6 +38,7 @@ public class Rook extends ChessPiece {
 							return false;
 						}
 					}
+					hasMoved = true;
 					return true;
 				}
 				else{
@@ -45,6 +48,7 @@ public class Rook extends ChessPiece {
 							return false;
 						}
 					}
+					hasMoved = true;
 					return true;
 				}
 			}
