@@ -120,15 +120,25 @@ public class ChessModel implements IChessModel {
 	}
 	
 	/****************************************************************
-	 * Asks the piece if it's a valid move.
+	 * Returns whether or not given move is valid according to piece
+	 * movement rules and check rules.
+	 * 
 	 * @param move - a Move that need to be verified for validity
 	 * @return false - move is not a valid Move
 	 * @return true - move is a valid Move
 	 ****************************************************************/
 	@Override
 	public boolean isValidMove(Move move) {
+		// Initializing an imaginary board
+		IChessPiece[][] tempBoard = board;
+		
 		if(pieceAt(move.fromRow, move.fromColumn).isValidMove(move, board)) {
-			return true;
+			tempBoard[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
+			tempBoard[move.fromRow][move.fromColumn] = null;
+			// Making the move on the imaginary board
+			
+			// Returns false if the king is in check on the imaginary board
+			return (!inCheck(board[move.fromRow][move.fromColumn].getPlayer(), tempBoard));
 		}
 		else {
 			return false;
@@ -136,7 +146,9 @@ public class ChessModel implements IChessModel {
 	}
 	
 	/****************************************************************
-	 * Moves the piece. 
+	 * Moves the piece if it's legal to do so, otherwise shows an
+	 * error message.
+	 * 
 	 * @param move - the Move that needs to be performed
 	 ****************************************************************/
 	@Override
@@ -145,43 +157,23 @@ public class ChessModel implements IChessModel {
 			// Castle
 			if (pieceAt(move.fromRow, move.fromColumn).type() == "King" && 
 				Math.abs(move.fromColumn - move.toColumn) == 2) {
-				board[move.toRow][move.toColumn > 4 ? move.fromColumn + 1 : move.fromColumn - 1]
-					= board[move.toRow][move.toColumn > 4 ? 7 : 0];
-				board[move.toRow][move.toColumn > 4 ? 7 : 0] = null;
-			}
-			if(pieceAt(move.toRow, move.toColumn) != null) {
-				board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-				setNextPlayer();
-			}
-			board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-			board[move.fromRow][move.fromColumn] = null;
-						ChessPiece newPiece;
-			Player owner = board[move.toRow][move.toRow].player();
-			
-			//Kludgey way to cast the IChessPiece in the 2D array and make it update its
-			//hasMoved.
-			switch (board[move.toRow][move.toRow].type()) {
-				case "King":
-						newPiece = new King(owner);
-						newPiece.isNowMoved();
-						board[move.toRow][move.toRow] = newPiece;
-						break;
+				// isValidMove(move) implies this means the king is trying to castle
 				
-				case "Pawn":
-						newPiece = new Pawn(owner);
-						newPiece.isNowMoved();
-						board[move.toRow][move.toRow] = newPiece;
-						break;
+				//Move the rook
+				int rookCol = move.toColumn > move.fromColumn ? 7 : 0;
+				int displacement =  move.toColumn > fromColumn ? -1 : 1;
+				board[move.toRow][rookCol] = board[move.toRow][move.toColumn + displacement];
+				board[move.toRow][rookCol] = null;
 				
-				case "Rook":
-						newPiece = new Rook(owner);
-						newPiece.isNowMoved();
-						board[move.toRow][move.toRow] = newPiece;
-						break;
-				
+				// Mark the rook as moved
+				board[move.toRow][move.toColumn + displacement].isNowMoved();
 			}
 			
-			setNextPlayer();
+			board[move.fromRow][move.fromColumn] = board[move.toRow][move.toColumn];
+			
+			
+			// Mark the piece as moved
+			board[move.toRow][move.toColumn].isNowMoved();
 			setNextPlayer();
 		}
 		else {
@@ -191,17 +183,32 @@ public class ChessModel implements IChessModel {
 	}
 	
 	/****************************************************************
-	 * Verifies if player p's King is in check
+	 * Verifies if player p's King is in check.
+	 * 
 	 * @param p - the player that need to verifiy if they are checked
+	 * @param board - the board to be used.
 	 * @return false - if the player is not in check
 	 * @return true - if the player is in check
 	 ****************************************************************/
 	@Override
 	public boolean inCheck(Player p){
+		return inCheck(p, board);
+	}
+	
+	/****************************************************************
+	 * Verifies if player p's King is in check on the board in the
+	 * parameter.
+	 * 
+	 * @param p - the player that need to verifiy if they are checked
+	 * @param board - the board to be used.
+	 * @return false - if the player is not in check
+	 * @return true - if the player is in check
+	 ****************************************************************/
+	public boolean inCheck(Player p, IChessPiece[][] board){
 		for (int r = 0; r < 8; r++) {
 			for (int c = 0; c < 8; c++) {
-				if (pieceAt(r, c).type() == "King" 
-					&& pieceAt(r,c).player() == p
+				if (board[r,c].type() == "King" 
+					&& board[r,c].player() == p
 					&& squareIsThreatened(r,c)){
 					return true;
 				}
@@ -217,14 +224,22 @@ public class ChessModel implements IChessModel {
 	 * @return false - the square is not threatened
 	 * @return true - the square is threatened
 	 ****************************************************************/
-	 
-	 // FIXME: Consolidate the two "threatened" methods: this one and the one in ChessPiece
 	public boolean squareIsThreatened(int Row, int Col) {
+		return squareIsThreatened(Row, Col, board);
+	}
+	
+	/****************************************************************
+	 * Check if a certain square is threatened.
+	 * @param Row - int that is the squares row location
+	 * @param Col - int that is the squares column location
+	 * @return false - the square is not threatened
+	 * @return true - the square is threatened
+	 ****************************************************************/
+	public boolean squareIsThreatened(int Row, int Col, IChessPiece[][] board) {
 		for (int r = 0; r < 8; r++) {
 			for (int c = 0; c < 8; c++) {
 				Move temp = new Move(r, c, Row, Col);
-				if (pieceAt(r, c).isValidMove(temp,
-						board))
+				if (pieceAt(r, c).isValidMove(temp, board))
 					return true;
 			}
 		}
@@ -337,6 +352,10 @@ public class ChessModel implements IChessModel {
 	}
 	
 	public IChessPiece pieceAt(int row, int column) {
+		return board[row][column];
+	}
+	
+	public IChessPiece pieceAt(int row, int column, IChessPiece[][] board) {
 		return board[row][column];
 	}
 	
