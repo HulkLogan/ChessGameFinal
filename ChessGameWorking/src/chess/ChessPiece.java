@@ -68,9 +68,15 @@ public abstract class ChessPiece implements IChessPiece {
 	 			return false;
 	 		}
 	 	}
+	 	
+	 	/* Commenting this out: the isValidMove() in ChessModel takes care of actually
+	 	 * governing whether or not a particular piece can make a particular move.
+	 	 * For the purposes of the squareIsThreatened() method there, the isValidMove()
+	 	 * method in this and other subclasses of ChessPiece disregards check.
+	 	 
 	 	board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
 	 	board[move.fromRow][move.fromColumn] = null;
-	 	
+	 	 
 	 	//remove own king from board parameter, preventing recursion if it's
 	 	//necessary to check a spot attacked by both kings
 	 	for(int r = 0; r < 8; r++){
@@ -82,5 +88,6 @@ public abstract class ChessPiece implements IChessPiece {
 	 					return false;
 	 	}
 	 	return true;
+	 	*/
 	}
 }
