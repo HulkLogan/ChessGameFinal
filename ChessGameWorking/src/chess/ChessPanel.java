@@ -38,7 +38,7 @@ public class ChessPanel extends JPanel {
 	private JLabel bishopW;
 	private JLabel rookW;
 	private JLabel queenW;
-	private Icon forJop;
+	private JButton castling;
 	
 	//Images
 	private Image bPawn;
@@ -119,6 +119,10 @@ public class ChessPanel extends JPanel {
 		rookB = new JLabel();
 		rookB.setIcon(blackRook);
 		rightSide.add(rookB);
+		
+		castling = new JButton("Castle");
+		castling.addMouseListener(listener);
+		rightSide.add(castling);
 		
 		for(int row = 0; row < 8; row++) {
 			for(int col = 0; col < 8; col++) {
@@ -250,31 +254,37 @@ public class ChessPanel extends JPanel {
 	
 	public void highlight(int x, int y) {
 		IChessPiece temp = model.pieceAt(x, y);
-		if(temp.type() == "Pawn") {
-			board[x][y].setBackground(Color.GREEN);
-		}
-		else {
 			for(int t = 0; t < 8; t++) {
 				for(int g = 0; g < 8; g++) {
-					currentMove.toRow = t;
-					currentMove.toColumn = g;
-					if(model.isValidMove(currentMove)) {
-						board[t][g].setBackground(Color.GREEN);
-//						for(int a = 0; a < 8; a++) {
-//							for(int b = 0; b < 8; b++) {
-//								if(model.pieceAt(a, b) != null) {
-//									Move red = new Move(a, b, t, g);
-//									if(model.isValidMove(red)) {
-//										board[t][g].setBackground(Color.RED);
-//									}
-//								}
-//							}
-//						}
+					if(temp.type() == "Pawn") {
+						boolean p = ((Pawn) temp).getHasMoved();
+						if(p == false) {
+							currentMove.toRow = t;
+							currentMove.toColumn = g;
+							if(model.isValidMove(currentMove)) {
+								board[t][g].setBackground(Color.GREEN);
+							}
+							((Pawn) temp).hasMoved = false;
+						}
+						else {
+							currentMove.toRow = t;
+							currentMove.toColumn = g;
+							if(model.isValidMove(currentMove)) {
+								board[t][g].setBackground(Color.GREEN);
+							}
+						}
+					}
+					else {
+						currentMove.toRow = t;
+						currentMove.toColumn = g;
+						if(model.isValidMove(currentMove)) {
+							board[t][g].setBackground(Color.GREEN);
+						}
 					}
 				}
 			}
 		}
-	}
+//	}
 	
 	public void reset() {
 		model = new ChessModel();
@@ -303,6 +313,22 @@ public class ChessPanel extends JPanel {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
+				if(e.getSource() == castling) {
+					Object[] options = { "Left", "Right" };
+					int n = JOptionPane.showOptionDialog(null, "Which side would you like to castle with?", "Castling",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, 
+							options, options[0]);
+					if(n == 0) {
+						//left
+						model.castling("Left");
+						displayBoard();
+					}
+					if(n == 1) {
+						//right
+						model.castling("Right");
+						displayBoard();
+					}
+				}
 				for(int a = 0; a < 8; a++) {
 					for(int b = 0; b < 8; b++) {
 						if(e.getSource() == board[a][b]) {
@@ -312,11 +338,13 @@ public class ChessPanel extends JPanel {
 										model.setCurrentPiece(model.pieceAt(a, b));
 										currentMove.fromRow = a;
 										currentMove.fromColumn = b;
+										highlight(a, b);
+										displayBoard();
 									}
 									else if(model.pieceAt(a, b).player() != model.currentPlayer()) {
 										currentMove.toRow = a;
 										currentMove.toColumn = b;
-										model.removePiece(model.pieceAt(a, b));
+										//model.removePiece(model.pieceAt(a, b));
 										model.move(currentMove);
 										displayBoard();
 										
@@ -364,8 +392,8 @@ public class ChessPanel extends JPanel {
 									currentMove.toColumn = b;
 									model.move(currentMove);
 									displayBoard();
-									if(model.inCheck(Player.WHITE) == true) {
-										if(model.isComplete() == true) {
+									if(model.inCheck(Player.WHITE)) {
+										if(model.isComplete()) {
 											int n = JOptionPane.showConfirmDialog(
 												    null,
 												    "Checkmate! Black Wins! \n Would you like to restart?",
@@ -382,8 +410,8 @@ public class ChessPanel extends JPanel {
 											JOptionPane.showMessageDialog(null, "White is in check!");
 										}
 									}
-									if(model.inCheck(Player.BLACK) == true) {
-										if(model.isComplete() == true) {
+									if(model.inCheck(Player.BLACK)) {
+										if(model.isComplete()) {
 											int n = JOptionPane.showConfirmDialog(
 												    null,
 												    "Checkmate! White Wins! \n Would you like to restart?",
@@ -404,6 +432,7 @@ public class ChessPanel extends JPanel {
 								displayBoard();
 							}
 							if(e.getButton() == MouseEvent.BUTTON3) {
+								displayBoard();
 								if(e.getSource() == board[a][b]) {
 									if(model.getCurrentPiece() == null) {
 										if(model.pieceAt(a, b) != null) {
@@ -412,6 +441,7 @@ public class ChessPanel extends JPanel {
 												currentMove.fromRow = a;
 												currentMove.fromColumn = b;
 												highlight(a, b);
+												model.currentPiece = null;
 											}
 										}
 									}

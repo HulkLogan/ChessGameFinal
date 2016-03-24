@@ -9,9 +9,8 @@ import javax.swing.JLabel;
 public class Pawn extends ChessPiece {
 	
 	private Player owner;
-	private boolean hasMoved = false;
-	
-	
+	public boolean hasMoved = false;
+
 	protected Pawn(Player player) {
 		super(player);
 		this.owner = player;
@@ -63,14 +62,14 @@ public class Pawn extends ChessPiece {
 				else {
 					//black first move
 					if((move.toRow - move.fromRow < 3 ) && move.toColumn == move.fromColumn) {
-						hasMoved = true;
+						//hasMoved = true;
 						return true;
 					}
 					//black attack first move
 					else if(move.toRow - move.fromRow == 1 && Math.abs(move.toColumn - move.fromColumn) == 1) {
 						if(board[move.toRow][move.toColumn] != null && 
 								board[move.toRow][move.toColumn].player() == Player.WHITE) {
-							hasMoved = true;
+							//hasMoved = true;
 							return true;
 						}
 						return false;
@@ -79,6 +78,7 @@ public class Pawn extends ChessPiece {
 				}
 			}
 			else {
+				if(move.fromRow > 0)
 				//check if blocked
 				if(board[move.fromRow-1][move.fromColumn] != null) {
 					//check for attack
@@ -128,5 +128,13 @@ public class Pawn extends ChessPiece {
 			}
 		}
 		return false;
+	}
+	
+	public boolean getHasMoved() {
+		return hasMoved;
+	}
+
+	public void setHasMoved(boolean hasMoved) {
+		this.hasMoved = hasMoved;
 	}
 }

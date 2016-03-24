@@ -1,8 +1,5 @@
 package chess;
-/******************************************************************
- * The specific variations to ChessPiece that make a Bishop.  
- * @author Logan R. Crowe, Jake Young, Henry McDonough
- *****************************************************************/
+
 public class Bishop extends ChessPiece {
 	
 	private Player owner;
@@ -20,9 +17,6 @@ public class Bishop extends ChessPiece {
 		return owner;
 	}
 	
-	/*****************************************************************
-	 * Returns whether a move is allowed for a Bishop
-	 *****************************************************************/
 	public boolean isValidMove(Move move, IChessPiece[][] board) {
 		if(super.isValidMove(move, board) == false) {
 			return false;
