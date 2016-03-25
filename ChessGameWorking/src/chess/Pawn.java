@@ -11,10 +11,15 @@ public class Pawn extends ChessPiece {
 	private Player owner;
 	private boolean hasMoved = false;
 	
+	protected int myRow;
+	protected int myCol;
 	
-	protected Pawn(Player player) {
+	protected Pawn(Player player, row, col) {
 		super(player);
 		this.owner = player;
+		
+		myRow = row;
+		myCol = col;
 	}
 	
 	public String type(){
