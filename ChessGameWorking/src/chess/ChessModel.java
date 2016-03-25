@@ -161,7 +161,7 @@ public class ChessModel implements IChessModel {
 				
 				//Move the rook
 				int rookCol = move.toColumn > move.fromColumn ? 7 : 0;
-				int displacement =  move.toColumn > fromColumn ? -1 : 1;
+				int displacement =  move.toColumn > move.fromColumn ? -1 : 1;
 				board[move.toRow][rookCol] = board[move.toRow][move.toColumn + displacement];
 				board[move.toRow][rookCol] = null;
 				
