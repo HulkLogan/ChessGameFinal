@@ -16,6 +16,7 @@ public class Queen extends ChessPiece {
 		
 		myRow = row;
 		myCol = col;
+		hasMoved = false;
 	}
 	
 	public boolean hasMoved() {
@@ -26,8 +27,14 @@ public class Queen extends ChessPiece {
 		return "Queen";
 	}
 	
-	public Player player() {
-		return owner;
+	protected boolean hasMoved;
+	
+	public void isNowMoved() {
+		hasMoved = true;
+	}
+	
+	public boolean hasMoved() {
+		return hasMoved;
 	}
 	
 	/*****************************************************************
