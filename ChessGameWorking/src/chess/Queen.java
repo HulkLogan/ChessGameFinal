@@ -6,10 +6,16 @@ package chess;
 public class Queen extends ChessPiece {
 	
 	private Player owner;
+	
+	protected int myRow;
+	protected int myCol;
 
-	protected Queen(Player player) {
+	protected Queen(Player player, row, col) {
 		super(player);
 		this.owner = player;
+		
+		myRow = row;
+		myCol = col;
 	}
 
 	public String type(){
