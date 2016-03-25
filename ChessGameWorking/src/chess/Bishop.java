@@ -7,9 +7,15 @@ public class Bishop extends ChessPiece {
 	
 	private Player owner;
 	
-	protected Bishop(Player player) {
-		super(player);
+	protected int myRow;
+	protected int myCol;
+	
+	protected Bishop(Player player, int row, int col) {
+		super(player, row, col);
 		this.owner = player;
+		
+		myRow = row;
+		myCol = col;
 	}
 	
 	public String type(){
