@@ -10,7 +10,7 @@ public class Queen extends ChessPiece {
 	protected int myRow;
 	protected int myCol;
 
-	protected Queen(Player player, row, col) {
+	protected Queen(Player player, int row, int col) {
 		super(player);
 		this.owner = player;
 		
