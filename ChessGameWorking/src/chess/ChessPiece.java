@@ -40,6 +40,11 @@ public abstract class ChessPiece implements IChessPiece {
 		return owner;
 	}
 	
+	/*alias to player()*/
+	public Player getPlayer() {
+		return player();
+	}
+	
 	/*******************************************************************
 	 * Checks if the piece is threatened.
 	 * @return false - the piece is not threatened
