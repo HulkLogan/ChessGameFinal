@@ -8,7 +8,7 @@ public class Knight extends ChessPiece {
 	protected int myRow;
 	protected int myCol;
 
-	protected Knight(Player player, row, col) {
+	protected Knight(Player player, int row, int col) {
 		super(player);
 		this.owner = player;
 		
