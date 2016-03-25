@@ -18,6 +18,10 @@ public class Rook extends ChessPiece {
 	}
 
 	private Player owner;
+	
+	public boolean hasMoved() {
+		return super.hasMoved();
+	}
 
 	public String type() {
 		return "Rook";
