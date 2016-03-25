@@ -45,8 +45,8 @@ public class King extends ChessPiece{
 					 * 0 / 0 == 0
 					 * 0 - 1 == -1 */
 					{
-						if (board[firstRank][n] != null || (ChessPiece)
-							|| (board[firstRank][n].isThreatened(board) &&
+						if (board[firstRank][n] != null ||
+							(board[firstRank][n].isThreatened(board) &&
 							Math.abs(n-4) <= 2))
 							return false;
 					}
