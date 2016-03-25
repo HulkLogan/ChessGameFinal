@@ -18,7 +18,9 @@ public class Knight extends ChessPiece {
 
 	private Player owner;
 	
-	
+	public boolean hasMoved() {
+		return super.hasMoved();
+	}
 	
 	public String type(){
 		return "Knight";
