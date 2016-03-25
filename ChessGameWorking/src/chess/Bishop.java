@@ -18,6 +18,10 @@ public class Bishop extends ChessPiece {
 		myCol = col;
 	}
 	
+	public boolean hasMoved() {
+		return super.hasMoved();
+	}
+	
 	public String type(){
 		return "Bishop";
 	}
