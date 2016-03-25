@@ -20,7 +20,7 @@ public abstract class ChessPiece implements IChessPiece {
 	protected boolean hasMoved;
 	
 	/*sets the owner variable for this piece*/
-	protected ChessPiece(Player player; int row; int col) {
+	protected ChessPiece(Player player, int row, int col) {
 		this.owner = player;
 		myRow = row;
 		myCol = col;
