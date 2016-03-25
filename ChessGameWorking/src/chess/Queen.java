@@ -11,7 +11,7 @@ public class Queen extends ChessPiece {
 	protected int myCol;
 
 	protected Queen(Player player, int row, int col) {
-		super(player);
+		super(player, row, col);
 		this.owner = player;
 		
 		myRow = row;
