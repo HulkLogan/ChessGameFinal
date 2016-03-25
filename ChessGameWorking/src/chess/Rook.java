@@ -5,10 +5,16 @@ package chess;
  * @author Logan R. Crowe, Jake Young, Henry McDonough
  *****************************************************************/
 public class Rook extends ChessPiece {
+	
+	protected int myRow;
+	protected int myCol;
 
-	protected Rook(Player player) {
+	protected Rook(Player player, row, col) {
 		super(player);
 		this.owner = player;
+		
+		myRow = row;
+		myCol = col;
 	}
 
 	private Player owner;
