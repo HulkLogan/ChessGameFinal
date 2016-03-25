@@ -11,6 +11,8 @@ public interface IChessPiece {
 	 * @return the player that owns this piece.
 	 */
 	Player player();
+	
+	boolean hasMoved();
 
 	/**
 	 * Return the type of this piece ("King", "Queen", "Rook", etc.).  Note:  In this case "type" refers to the game
