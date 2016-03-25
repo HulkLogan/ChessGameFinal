@@ -17,6 +17,7 @@ public class King extends ChessPiece{
 		
 		myRow = row;
 		myCol = col;
+		hasMoved = false;
 	}
 	
 	public String type(){
@@ -27,8 +28,13 @@ public class King extends ChessPiece{
 		return owner;
 	}
 	
+	protected boolean hasMoved;
+	public void isNowMoved() {
+		hasMoved = true;
+	}
+	
 	public boolean hasMoved() {
-		return super.hasMoved();
+		return hasMoved;
 	}
 	
 	/*****************************************************************
