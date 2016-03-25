@@ -43,7 +43,7 @@ public interface IChessPiece {
 	 * 
 	 * @return whether the piece is under attack
 	 */
-	boolean isThreatened();
+	boolean isThreatened(IChessPiece[][] board);
 	
 	/**
 	 * Confirms that the piece has moved from its original position.
