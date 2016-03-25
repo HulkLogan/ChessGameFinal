@@ -9,7 +9,7 @@ public class Rook extends ChessPiece {
 	protected int myRow;
 	protected int myCol;
 
-	protected Rook(Player player, row, col) {
+	protected Rook(Player player, int row, int col) {
 		super(player);
 		this.owner = player;
 		
