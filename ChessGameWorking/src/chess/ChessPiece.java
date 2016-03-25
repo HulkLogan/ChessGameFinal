@@ -1,8 +1,5 @@
 package chess;
 
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-
 public abstract class ChessPiece implements IChessPiece {
 	
 	private Player owner;

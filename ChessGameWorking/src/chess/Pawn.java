@@ -30,6 +30,7 @@ public class Pawn extends ChessPiece {
 	public boolean isValidMove(Move move, IChessPiece[][] board) {
 		if(super.isValidMove(move, board)) {
 			if(board[move.fromRow][move.fromColumn].player() == Player.BLACK) {
+				if(move.fromRow < 7)
 				//check if blocked
 				if(board[move.fromRow+1][move.fromColumn] != null) {
 					//check for attack
@@ -61,7 +62,8 @@ public class Pawn extends ChessPiece {
 				}
 				else {
 					//black first move
-					if((move.toRow - move.fromRow < 3 ) && move.toColumn == move.fromColumn) {
+					if((move.toRow - move.fromRow == 2 || move.toRow-move.fromRow == 1 ) 
+							&& move.toColumn == move.fromColumn) {
 						//hasMoved = true;
 						return true;
 					}
@@ -110,15 +112,15 @@ public class Pawn extends ChessPiece {
 				}
 				else {
 					//white first move
-					if(move.fromRow - move.toRow < 3 && move.toColumn == move.fromColumn) {
-						hasMoved = true;
+					if((move.fromRow - move.toRow == 2 || move.fromRow - move.toRow == 1) && move.toColumn == move.fromColumn) {
+						//hasMoved = true;
 						return true;
 					}
 					//white attack first move
 					else if(move.fromRow - move.toRow == 1 && Math.abs(move.fromColumn - move.toColumn) == 1) {
 						if(board[move.toRow][move.toColumn] != null && 
 								board[move.toRow][move.toColumn].player() == Player.BLACK) {
-							hasMoved = true;
+							//hasMoved = true;
 							return true;
 						}
 						return false;

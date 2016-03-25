@@ -1,9 +1,13 @@
 package chess;
 
 import java.awt.Component;
+import java.awt.Image;
 import java.awt.Panel;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
@@ -19,13 +23,13 @@ public class ChessModel implements IChessModel {
 	/**array to hold the board pieces*/
 	private IChessPiece[][] board;
 	
+	private IChessPiece[][] tempBoard;
+	
 	/**the current Player**/
 	private Player player;
 	
 	/**the current piece*/
 	public IChessPiece currentPiece;
-	private IChessPiece attacker;
-	private JButton Rook, Bishop, Knight;
 	public int takenBlackKnight = 0;
 	public int takenWhiteKnight = 0;
 	public int takenBlackBishop = 0;
@@ -36,11 +40,21 @@ public class ChessModel implements IChessModel {
 	public int takenWhitePawn = 0;
 	public int takenBlackQueen = 0;
 	public int takenWhiteQueen = 0;
+	public IChessPiece savior;
+	private Image bPawn;
+	private ImageIcon blackPawn;
 	//declare other instance variables as needed
 	
 	public ChessModel() {
 		board = new IChessPiece[8][8];
 		player = Player.WHITE;
+		try {
+			bPawn = ImageIO.read(getClass().getResource("/Resources/blackPawn.png"));
+		} catch (IOException e) {
+			System.out.println(5);
+		}
+		blackPawn = new ImageIcon(bPawn);
+		
 		
 		//-----back row for Black---------//
 		board[0][0] = new Rook(Player.BLACK);
@@ -91,17 +105,38 @@ public class ChessModel implements IChessModel {
 	 * @return true - game is complete
 	 *****************************************************************/
 	@Override
-	public boolean isComplete() {	
-		for (int r = 0; r < 8; r++) 
-			for (int c = 0; c < 8; c++) 
-				if(pieceAt(r, c) != null) 
-					if(pieceAt(r, c).type() == "King") 
-						if(pieceAt(r, c).player() == currentPlayer()) 
-							if(canKingMove(r, c, currentPlayer()) == false)
-								if(canRemoveThreat(r, c, currentPlayer()) == false)
-									return true;
-		return false;
-								
+	public boolean isComplete() {
+		for (int r = 0; r < 8; r++){ 
+			for (int c = 0; c < 8; c++){
+				for (int x = 0; x < 8; x++){ 
+					for (int y = 0; y < 8; y++){
+						savior = pieceAt(r, c);
+						if(pieceAt(r, c) != null && pieceAt(r, c).player() == currentPlayer()){
+							Move test = new Move(r,c,x,y);
+							if(isValidMove(test)){
+								return !testMove(test);
+							}
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
+	public boolean testMove(Move move){
+		duplicateBoard(board);
+		IChessPiece tempPiece = tempBoard[move.toRow][move.toColumn];
+		tempBoard[move.toRow][move.toColumn] = tempBoard[move.fromRow][move.fromColumn];
+		tempBoard[move.fromRow][move.fromColumn] = null;
+		if(!inCheck(player)){
+			tempBoard[move.fromRow][move.fromColumn] = tempBoard[move.toRow][move.toColumn];
+			tempBoard[move.toRow][move.toColumn] = tempPiece;
+			return false;
+		}
+			tempBoard[move.fromRow][move.fromColumn] = tempBoard[move.toRow][move.toColumn];
+			tempBoard[move.toRow][move.toColumn] = tempPiece;
+			return true;
 	}
 	
 	/****************************************************************
@@ -121,10 +156,11 @@ public class ChessModel implements IChessModel {
 			}
 		}
 		catch(NullPointerException e) {
+			JOptionPane.showMessageDialog(null, "Not a valid Move");
 			return false;
 		}
 	}
-	
+
 	/****************************************************************
 	 * Moves the piece. 
 	 * @param move - the Move that needs to be performed
@@ -132,130 +168,32 @@ public class ChessModel implements IChessModel {
 	@Override
 	public void move(Move move) {
 		if(pieceAt(move.fromRow, move.fromColumn) != null) {
-			if(pieceAt(move.fromRow, move.fromColumn).type() == "Pawn") {
-				if(((Pawn) pieceAt(move.fromRow, move.fromColumn)).hasMoved == false) {
-					if(isValidMove(move)) {
-						if(pieceAt(move.toRow, move.toColumn) != null) {
-							removePiece(pieceAt(move.toRow, move.toColumn));
-							board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-						}
-						board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-						board[move.fromRow][move.fromColumn] = null;
-						promotion();
-						setNextPlayer();
+			if(isValidMove(move)) {
+				if(currentPiece != null) {
+					if(currentPiece.type() == "Pawn") {
+						((Pawn) currentPiece).hasMoved = true;
+						currentPiece = null;
 					}
-					else {
-						JOptionPane.showMessageDialog(null, "Not a valid move.");
+					else if(currentPiece.type() == "Rook") {
+						((Rook) currentPiece).hasMoved = true;
+						currentPiece = null;
 					}
-					currentPiece = null;
-					((Pawn) pieceAt(move.toRow, move.toColumn)).hasMoved = true;
+					else if(currentPiece.type() == "King") {
+						((King) currentPiece).hasMoved = true;
+						currentPiece = null;
+					}
 				}
-				else {
-					if(isValidMove(move)) {
-						if(pieceAt(move.toRow, move.toColumn) != null) {
-							removePiece(pieceAt(move.toRow, move.toColumn));
-							board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-						}
-						board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-						board[move.fromRow][move.fromColumn] = null;
-						promotion();
-						setNextPlayer();
-					}
-					else {
-						JOptionPane.showMessageDialog(null, "Not a valid move.");
-					}
-					currentPiece = null;
-				}
-				
-			}
-			else if(pieceAt(move.fromRow, move.fromColumn).type() == "Rook") {
-				if(((Rook) pieceAt(move.fromRow, move.fromColumn)).hasMoved == false) {
-					if(isValidMove(move)) {
-						if(pieceAt(move.toRow, move.toColumn) != null) {
-							removePiece(pieceAt(move.toRow, move.toColumn));
-							board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-						}
-						board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-						board[move.fromRow][move.fromColumn] = null;
-						promotion();
-						setNextPlayer();
-					}
-					else {
-						JOptionPane.showMessageDialog(null, "Not a valid move.");
-					}
-					currentPiece = null;
-					((Rook) pieceAt(move.toRow, move.toColumn)).hasMoved = true;
-				}
-				else {
-					if(isValidMove(move)) {
-						if(pieceAt(move.toRow, move.toColumn) != null) {
-							removePiece(pieceAt(move.toRow, move.toColumn));
-							board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-						}
-						board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-						board[move.fromRow][move.fromColumn] = null;
-						promotion();
-						setNextPlayer();
-					}
-					else {
-						JOptionPane.showMessageDialog(null, "Not a valid move.");
-					}
-					currentPiece = null;
-				}
-				
-			}
-			else if(pieceAt(move.fromRow, move.fromColumn).type() == "King") {
-				if(((King) pieceAt(move.fromRow, move.fromColumn)).hasMoved == false) {
-					if(isValidMove(move)) {
-						if(pieceAt(move.toRow, move.toColumn) != null) {
-							removePiece(pieceAt(move.toRow, move.toColumn));
-							board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-						}
-						board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-						board[move.fromRow][move.fromColumn] = null;
-						promotion();
-						setNextPlayer();
-					}
-					else {
-						JOptionPane.showMessageDialog(null, "Not a valid move.");
-					}
-					currentPiece = null;
-					((King) pieceAt(move.toRow, move.toColumn)).hasMoved = true;
-				}
-				else {
-					if(isValidMove(move)) {
-						if(pieceAt(move.toRow, move.toColumn) != null) {
-							removePiece(pieceAt(move.toRow, move.toColumn));
-							board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-						}
-						board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-						board[move.fromRow][move.fromColumn] = null;
-						promotion();
-						setNextPlayer();
-					}
-					else {
-						JOptionPane.showMessageDialog(null, "Not a valid move.");
-					}
-					currentPiece = null;
-				}
-				
-			}
-
-			else {
-				if(isValidMove(move)) {
-					if(pieceAt(move.toRow, move.toColumn) != null) {
-						removePiece(pieceAt(move.toRow, move.toColumn));
-						board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-					}
+				if(pieceAt(move.toRow, move.toColumn) != null) {
+					removePiece(pieceAt(move.toRow, move.toColumn));
 					board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-					board[move.fromRow][move.fromColumn] = null;
-					promotion();
-					setNextPlayer();
 				}
-				else {
-					JOptionPane.showMessageDialog(null, "Not a valid move.");
-				}
-				currentPiece = null;
+				board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
+				board[move.fromRow][move.fromColumn] = null;
+				promotion();
+				setNextPlayer();
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "Not a valid move.");
 			}
 		}
 	}
@@ -286,7 +224,7 @@ public class ChessModel implements IChessModel {
 						temp.fromRow = a;
 						temp.fromColumn = b;
 						if(pieceAt(a, b).isValidMove(temp, board)) {
-							attacker = pieceAt(a, b);
+							//attacker = pieceAt(a, b);
 							return true;
 						}
 					}
@@ -312,178 +250,271 @@ public class ChessModel implements IChessModel {
 		return false;
 	}
 	
-	public boolean canKingMove(int row, int col, Player p) {
-		for(int r = row-1; r <= row+1; r++) {
-			for(int c = col-1; c <= col+1; c++) {
-				if(r < 8 && r > -1 && c < 8 && c > -1) {
-					if(pieceAt(r, c) != null) {
-						if(pieceAt(r, c).player() != currentPlayer()) {
-							if(squareIsThreatened(r, c, p) == false) {
-								return true;
+//	public boolean canKingMove(int row, int col, Player p) {
+//		for(int r = row-1; r <= row+1; r++) {
+//			for(int c = col-1; c <= col+1; c++) {
+//				if(r < 8 && r > -1 && c < 8 && c > -1) {
+//					if(pieceAt(r, c) != null) {
+//						if(pieceAt(r, c).player() != currentPlayer()) {
+//							if(squareIsThreatened(r, c, p) == false) {
+//								return true;
+//							}
+//							return false;
+//						}
+//					}
+//					else {
+//						if(squareIsThreatened(r, c, p) == false) {
+//							return true;
+//						}
+//						return false;
+//					}
+//				}
+//			}
+//		}
+//		return false;
+//	}
+//
+//	public boolean canRemoveThreat(int row, int col, Player p) {
+//		IChessPiece fromSpot; 
+//		IChessPiece toSpot; 
+//		for(int r = 0; r < 8; r++) {
+//			for(int c = 0; c < 8; c++) {
+//				if(board[r][c] != null) {
+//					if(board[r][c].player() == p) {
+//						for(int x = 0; x < 8; x++) {
+//							for(int y = 0; y < 8; y++) {
+//								Move threat = new Move(r, c, x, y);
+//								if(board[r][c].isValidMove(threat, board)) {
+//									if(testMove(board, threat, p)){
+//										return true;
+//									}
+//									else {
+//										return false;
+//									}
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//		return false;
+//	}
+	
+//	public boolean testMove(IChessPiece[][] board, Move move, Player p){
+//		
+//		IChessPiece fromPiece = board[move.fromRow][move.fromColumn];
+//		IChessPiece toPiece = board[move.toRow][move.toColumn];
+//		
+//		board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
+//		board[move.fromRow][move.fromColumn] = null;
+//		if(!inCheck(p)){
+//			board[move.fromRow][move.fromColumn] = fromPiece;
+//			board[move.toRow][move.toColumn] = toPiece;
+//			return true;
+//		}
+//		else{
+//			board[move.fromRow][move.fromColumn] = fromPiece;
+//			board[move.toRow][move.toColumn] = toPiece;
+//			return false;
+//		}
+//	}
+	
+	public void promotion() {
+		for(int a = 0; a < 8; a++) {
+			if(currentPlayer() == Player.WHITE) {
+				if(pieceAt(0, a) != null && pieceAt(0, a).type() == "Pawn" 
+						&& pieceAt(0, a).player() == currentPlayer()) {
+					if(takenWhiteBishop == 0 && takenWhiteKnight == 0 &&
+							takenWhiteRook == 0) {
+						JOptionPane.showMessageDialog(null, "You have not lost any pieces \n"
+								+ "You will be given a Queen");
+						board[0][a] = new Queen(Player.WHITE);
+					}
+					if(takenWhiteBishop != 0) {
+						if(takenWhiteKnight != 0) {
+							if(takenWhiteRook != 0) {
+								Object[] options = {"Bishop", "Knight", "Rook"};
+								int n = JOptionPane.showOptionDialog(null, "Please select a piece.", "Promotion", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, blackPawn, options, options[0]);
+								if(n == 0) {
+									board[0][a] = new Bishop(Player.WHITE);
+									takenWhiteBishop--;
+								}
+								if(n == 1) {
+									board[0][a] = new Knight(Player.WHITE);
+									takenWhiteKnight--;
+								}
+								if(n == 2) {
+									board[0][a] = new Rook(Player.WHITE);
+									takenWhiteRook--;
+								}
 							}
-							return false;
+							else {
+								Object[] options = {"Bishop", "Knight"};
+								int n = JOptionPane.showOptionDialog(null, "Please select a piece.", "Promotion", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, blackPawn, options, options[0]);
+								if(n == 0) {
+									board[0][a] = new Bishop(Player.WHITE);
+									takenWhiteBishop--;
+								}
+								if(n == 1) {
+									board[0][a] = new Knight(Player.WHITE);
+									takenWhiteKnight--;
+								}
+							}
 						}
-					}
-					else {
-						if(squareIsThreatened(r, c, p) == false) {
-							return true;
-						}
-						return false;
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-	public boolean canRemoveThreat(int row, int col, Player p) {
-		IChessPiece[][] temp = board;
-		for(int r = 0; r < 8; r++) {
-			for(int c = 0; c < 8; c++) {
-				if(temp[r][c] != null) {
-					if(temp[r][c].player() == p) {
-						for(int x = 0; x < 8; x++) {
-							for(int y = 0; y < 8; y++) {
-								Move threat = new Move(r, c, x, y);
-								//System.out.println("r:" + r + "c:" + c + "x:" + x + "y:" + y);
-								if(temp[r][c].isValidMove(threat, temp)) {
-									temp[x][y] = temp[r][c];
-									temp[r][c] = null;
-									if(!inCheck(p)) {
-										temp[r][c] = temp[x][y];
-										temp[x][y] = null;
-										return true;
-									}
-									else {
-										temp[r][c] = temp[x][y];
-										temp[x][y] = null;
-									}
+						else{
+							if(takenWhiteRook != 0) {
+								Object[] options = {"Bishop", "Rook"};
+								int n = JOptionPane.showOptionDialog(null, "Please select a piece.", "Promotion", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, blackPawn, options, options[0]);
+								if(n == 0) {
+									board[0][a] = new Bishop(Player.WHITE);
+									takenWhiteBishop--;
+								}
+								if(n == 1) {
+									board[0][a] = new Rook(Player.WHITE);
+									takenWhiteRook--;
+								}
+							}
+							else {
+								Object[] options = {"Bishop"};
+								int n = JOptionPane.showOptionDialog(null, "Please select a piece.", "Promotion", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, blackPawn, options, options[0]);
+								if(n == 0) {
+									board[0][a] = new Bishop(Player.WHITE);
+									takenWhiteBishop--;
 								}
 							}
 						}
 					}
-				}
-			}
-		}
-		return false;
-	}
-	
-	public void promotion() {
-		// set enabled/visible
-		for (int a = 0; a < 8; a++) {
-			if (currentPlayer() == Player.WHITE) {
-				// checks if correct piece
-				if (pieceAt(0, a) != null && pieceAt(0, a).type() == "Pawn"
-						&& pieceAt(0, a).player() == currentPlayer()) {
-					if(takenWhiteBishop == 0 && takenWhiteKnight == 0 && 
-							takenWhiteRook == 0) {
-						JOptionPane.showMessageDialog(null, "You have not lost any pieces \n"
-								+ "You will be given a Queen!");
-						board[0][a] = new Queen(Player.WHITE);
-					}
-//					else {
-//						JButton[] options = { Rook, Bishop, Knight };
-//						int n = JOptionPane.showOptionDialog(null, "What piece would you like?", "Promotin",
-//								JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
-//						if(takenWhiteBishop == 0) {
-//							options[0].setEnabled(false);
-//						}
-//						else {
-//							options[0].setEnabled(true);
-//						}
-//						if(takenWhiteKnight == 0) {
-//							options[1].setEnabled(false);
-//						}
-//						else {
-//							options[1].setEnabled(true);
-//						}
-//						if(takenWhiteRook == 0) {
-//							options[2].setEnabled(false);
-//						}
-//						else {
-//							options[2].setEnabled(true);
-//						}
-//						if(n == 0) {
-//							board[0][a] = new Bishop(Player.WHITE);
-//						}
-//						if(n == 1) {
-//							board[0][a] = new Knight(Player.WHITE);
-//						}
-//						if(n == 2) {
-//							board[0][a] = new Rook(Player.WHITE);
-//						}
-//					}
-//				}
-					if (takenWhiteBishop == 0 && takenWhiteKnight == 0 && takenWhiteRook == 0) {
-						JOptionPane.showMessageDialog(null,
-								"You do not have any pieces \n " + "to substitute,  \n" + "You will be given a Queen!");
-						board[0][a] = new Queen(Player.WHITE);
-					} 
 					else {
-						JButton[] options = { Rook, Bishop, Knight };
-						int n = JOptionPane.showOptionDialog(null, "What piece would you like?", "Promotion",
-								JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
-						if (n == 0) {
-							if (getTakenWhiteRook() > 0) {
-								board[0][a] = new Rook(Player.WHITE);
+						if(takenWhiteKnight != 0) {
+							if(takenWhiteRook != 0) {
+								Object[] options = {"Knight", "Rook"};
+								int n = JOptionPane.showOptionDialog(null, "Please select a piece.", "Promotion", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, blackPawn, options, options[0]);
+								if(n == 0) {
+									board[0][a] = new Knight(Player.WHITE);
+									takenWhiteKnight--;
+								}
+								if(n == 1) {
+									board[0][a] = new Rook(Player.WHITE);
+									takenWhiteRook--;
+								}
 							}
 							else {
-								JOptionPane.showMessageDialog(null, "You do not have any Rooks");
+								Object[] options = {"Knight"};
+								int n = JOptionPane.showOptionDialog(null, "Please select a piece.", "Promotion", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, blackPawn, options, options[0]);
+								if(n == 0) {
+									board[0][a] = new Knight(Player.WHITE);
+									takenWhiteKnight--;
+								}
 							}
 						}
-						if (n == 1) {
-							if (getTakenWhiteBishop() > 0) {
-								board[0][a] = new Bishop(Player.WHITE);
+						else {
+							if(takenWhiteRook != 0) {
+							Object[] options = {"Rook"};
+							int n = JOptionPane.showOptionDialog(null, "Please select a piece.", "Promotion", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, blackPawn, options, options[0]);
+							if(n == 0) {
+									board[0][a] = new Rook(Player.WHITE);
+									takenWhiteRook--;
 							}
-							else {
-								JOptionPane.showMessageDialog(null, "You do not have any Bishops");
-							}
-						}
-						if (n == 2) {
-							if (getTakenWhiteKnight() > 0) {
-								board[0][a] = new Knight(Player.WHITE);
-							}
-							else {
-								JOptionPane.showMessageDialog(null, "You do not have any Knights");
 							}
 						}
 					}
 				}
 			}
-			if (currentPlayer() == Player.BLACK) {
-				if (pieceAt(7, a) != null && pieceAt(7, a).type() == "Pawn"
+			if(currentPlayer() == Player.BLACK) {
+				if(pieceAt(7, a) != null && pieceAt(7, a).type() == "Pawn" 
 						&& pieceAt(7, a).player() == currentPlayer()) {
-					if (takenBlackBishop == 0 && takenBlackKnight == 0 && takenBlackRook == 0) {
-						JOptionPane.showMessageDialog(null,
-								"You do not have any pieces \n " + "to substitute,  \n" + "You will be given a Queen!");
+					if(takenBlackBishop == 0 && takenBlackKnight == 0 &&
+							takenBlackRook == 0) {
+						JOptionPane.showMessageDialog(null, "You have not lost any pieces \n"
+								+ "You will be given a Queen");
 						board[7][a] = new Queen(Player.BLACK);
-					} 
+					}
+					if(takenBlackBishop != 0) {
+						if(takenBlackKnight != 0) {
+							if(takenBlackRook != 0) {
+								Object[] options = {"Bishop", "Knight", "Rook"};
+								int n = JOptionPane.showOptionDialog(null, "Please select a piece.", "Promotion", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, blackPawn, options, options[0]);
+								if(n == 0) {
+									board[7][a] = new Bishop(Player.BLACK);
+									takenBlackBishop--;
+								}
+								if(n == 1) {
+									board[7][a] = new Knight(Player.BLACK);
+									takenBlackKnight--;
+								}
+								if(n == 2) {
+									board[7][a] = new Rook(Player.BLACK);
+									takenBlackRook--;
+								}
+							}
+							else {
+								Object[] options = {"Bishop", "Knight"};
+								int n = JOptionPane.showOptionDialog(null, "Please select a piece.", "Promotion", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, blackPawn, options, options[0]);
+								if(n == 0) {
+									board[7][a] = new Bishop(Player.BLACK);
+									takenBlackBishop--;
+								}
+								if(n == 1) {
+									board[7][a] = new Knight(Player.BLACK);
+									takenBlackKnight--;
+								}
+							}
+						}
+						else{
+							if(takenBlackRook != 0) {
+								Object[] options = {"Bishop", "Rook"};
+								int n = JOptionPane.showOptionDialog(null, "Please select a piece.", "Promotion", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, blackPawn, options, options[0]);
+								if(n == 0) {
+									board[7][a] = new Bishop(Player.BLACK);
+									takenBlackBishop--;
+								}
+								if(n == 1) {
+									board[7][a] = new Rook(Player.BLACK);
+									takenBlackRook--;
+								}
+							}
+							else {
+								Object[] options = {"Bishop"};
+								int n = JOptionPane.showOptionDialog(null, "Please select a piece.", "Promotion", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, blackPawn, options, options[0]);
+								if(n == 0) {
+									board[7][a] = new Bishop(Player.BLACK);
+									takenBlackBishop--;
+								}
+							}
+						}
+					}
 					else {
-						Object[] options = { Rook, Bishop, Knight };
-						int n = JOptionPane.showOptionDialog(null, "What piece would you like?", "Promotion",
-								JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
-						if (n == 0) {
-							if (getTakenBlackRook() > 0) {
-								board[7][a] = new Rook(Player.BLACK);
+						if(takenBlackKnight != 0) {
+							if(takenBlackRook != 0) {
+								Object[] options = {"Knight", "Rook"};
+								int n = JOptionPane.showOptionDialog(null, "Please select a piece.", "Promotion", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, blackPawn, options, options[0]);
+								if(n == 0) {
+									board[7][a] = new Knight(Player.BLACK);
+									takenBlackKnight--;
+								}
+								if(n == 1) {
+									board[7][a] = new Rook(Player.BLACK);
+									takenBlackRook--;
+								}
 							}
 							else {
-								JOptionPane.showMessageDialog(null, "You do not have any Rooks");
+								Object[] options = {"Knight"};
+								int n = JOptionPane.showOptionDialog(null, "Please select a piece.", "Promotion", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, blackPawn, options, options[0]);
+								if(n == 0) {
+									board[7][a] = new Knight(Player.BLACK);
+									takenBlackKnight--;
+								}
 							}
 						}
-						if (n == 1) {
-							if (getTakenBlackBishop() > 0) {
-								board[7][a] = new Bishop(Player.BLACK);
+						else {
+							if(takenBlackRook != 0) {
+							Object[] options = {"Rook"};
+							int n = JOptionPane.showOptionDialog(null, "Please select a piece.", "Promotion", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, blackPawn, options, options[0]);
+							if(n == 0) {
+									board[7][a] = new Rook(Player.BLACK);
+									takenBlackRook--;
 							}
-							else {
-								JOptionPane.showMessageDialog(null, "You do not have any Bishops");
-							}
-						}
-						if (n == 2) {
-							if (getTakenBlackKnight() > 0) {
-								board[7][a] = new Knight(Player.BLACK);
-							} 
-							else {
-								JOptionPane.showMessageDialog(null, "You do not have any Knights");
 							}
 						}
 					}
@@ -509,8 +540,20 @@ public class ChessModel implements IChessModel {
 									setNextPlayer();
 								}
 							}
+							else {
+								JOptionPane.showMessageDialog(null, "You cannot castle at this time.");
+							}
+						}
+						else {
+							JOptionPane.showMessageDialog(null, "You cannot castle at this time.");
 						}
 					}
+					else {
+						JOptionPane.showMessageDialog(null, "You cannot castle at this time.");
+					}
+				}
+				else {
+					JOptionPane.showMessageDialog(null, "You cannot castle at this time.");
 				}
 			}
 			if(x.equals("Left")) {
@@ -528,10 +571,21 @@ public class ChessModel implements IChessModel {
 									setNextPlayer();
 								}
 							}
+							else {
+								JOptionPane.showMessageDialog(null, "You cannot castle at this time.");
+							}
+						}
+						else {
+							JOptionPane.showMessageDialog(null, "You cannot castle at this time.");
 						}
 					}
+					else {
+						JOptionPane.showMessageDialog(null, "You cannot castle at this time.");
+					}
 				}
-				
+				else {
+					JOptionPane.showMessageDialog(null, "You cannot castle at this time.");
+				}
 			}
 		}
 		if(currentPlayer() == Player.BLACK) {
@@ -550,8 +604,20 @@ public class ChessModel implements IChessModel {
 									setNextPlayer();
 								}
 							}
+							else {
+								JOptionPane.showMessageDialog(null, "You cannot castle at this time.");
+							}
+						}
+						else {
+							JOptionPane.showMessageDialog(null, "You cannot castle at this time.");
 						}
 					}
+					else {
+						JOptionPane.showMessageDialog(null, "You cannot castle at this time.");
+					}
+				}
+				else {
+					JOptionPane.showMessageDialog(null, "You cannot castle at this time.");
 				}
 			}
 			if(x.equals("Left")) {
@@ -569,8 +635,20 @@ public class ChessModel implements IChessModel {
 									setNextPlayer();
 								}
 							}
+							else {
+								JOptionPane.showMessageDialog(null, "You cannot castle at this time.");
+							}
+						}
+						else {
+							JOptionPane.showMessageDialog(null, "You cannot castle at this time.");
 						}
 					}
+					else {
+						JOptionPane.showMessageDialog(null, "You cannot castle at this time.");
+					}
+				}
+				else {
+					JOptionPane.showMessageDialog(null, "You cannot castle at this time.");
 				}
 			}
 		}
@@ -686,6 +764,63 @@ public class ChessModel implements IChessModel {
 		return takenWhiteQueen;
 	}
 	
+	public void duplicateBoard(IChessPiece[][] masterBoard){
+
+		tempBoard = new IChessPiece[8][8];
+
+		for (int r = 0; r < 8; r++){
+			for (int c = 0; c < 8; c++) {
+				if (board[r][c] != null) {
+					if(board[r][c].player() == Player.BLACK){
+						if(board[r][c].type() == "King"){
+						}
+						else if(board[r][c].type() == "Queen"){
+							tempBoard[r][c] = new Queen(Player.BLACK);
+						}
+						else if(board[r][c].type() == "Rook"){
+							tempBoard[r][c] = new Rook(Player.BLACK);
+						}
+						else if(board[r][c].type() == "Bishop"){
+							tempBoard[r][c] = new Bishop(Player.BLACK);
+						}
+						else if(board[r][c].type() == "Knight"){
+							tempBoard[r][c] = new Knight(Player.BLACK);
+						}
+						else if(board[r][c].type() == "Pawn"){
+							tempBoard[r][c] = new Pawn(Player.BLACK);
+						}
+						else if(board[r][c] == null){
+							tempBoard[r][c] = null;
+						}
+					
+					}
+					else if(board[r][c].player() == Player.WHITE){
+						if(board[r][c].type() == "King"){
+							tempBoard[r][c] = new King(Player.WHITE);
+						}
+						else if(board[r][c].type() == "Queen"){
+							tempBoard[r][c] = new Queen(Player.WHITE);
+						}
+						else if(board[r][c].type() == "Rook"){
+							tempBoard[r][c] = new Rook(Player.WHITE);
+						}
+						else if(board[r][c].type() == "Bishop"){
+							tempBoard[r][c] = new Bishop(Player.WHITE);
+						}
+						else if(board[r][c].type() == "Knight"){
+							tempBoard[r][c] = new Knight(Player.WHITE);
+						}
+						else if(board[r][c].type() == "Pawn"){
+							tempBoard[r][c] = new Pawn(Player.WHITE);
+						}
+						else if(board[r][c] == null){
+							tempBoard[r][c] = null;
+						}
+					}
+				}
+			}
+		}
+	}
 	
 	//add other public or helper methods as needed
 

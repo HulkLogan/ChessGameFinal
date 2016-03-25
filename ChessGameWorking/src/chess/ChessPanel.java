@@ -19,6 +19,9 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
@@ -27,6 +30,9 @@ public class ChessPanel extends JPanel {
 	
 	private JButton[][] board;
 	private ChessModel model;
+	public static JMenuBar topMenu;
+	private JMenuItem newAction;
+	private JMenuItem closeAction;
 	public Move currentMove;
 	private JLabel currPlayer;
 	private JPanel rightSide;
@@ -39,6 +45,7 @@ public class ChessPanel extends JPanel {
 	private JLabel rookW;
 	private JLabel queenW;
 	private JButton castling;
+	public boolean inChk;
 	
 	//Images
 	private Image bPawn;
@@ -82,6 +89,16 @@ public class ChessPanel extends JPanel {
 		rightSide.setLayout(new GridLayout(0, 1));
 		add(rightSide, BorderLayout.EAST);
 		board = new JButton[8][8];
+		
+		topMenu = new JMenuBar();
+		JMenu fileMenu = new JMenu("File");
+		newAction = new JMenuItem("New Game");
+		closeAction = new JMenuItem("Quit Game");
+		topMenu.add(fileMenu);
+		fileMenu.add(newAction);
+		fileMenu.add(closeAction);
+		newAction.addMouseListener(listener);
+		closeAction.addMouseListener(listener);
 		
 		currPlayer = new JLabel("Current Player is: \n");
 		currPlayer.setHorizontalTextPosition(JLabel.CENTER);
@@ -313,6 +330,13 @@ public class ChessPanel extends JPanel {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
+				if(e.getSource() == newAction) {
+					reset();
+					displayBoard();
+				}
+				if(e.getSource() == closeAction) {
+					System.exit(0);
+				}
 				if(e.getSource() == castling) {
 					Object[] options = { "Left", "Right" };
 					int n = JOptionPane.showOptionDialog(null, "Which side would you like to castle with?", "Castling",
@@ -335,17 +359,21 @@ public class ChessPanel extends JPanel {
 							if(e.getButton() == MouseEvent.BUTTON1) {
 								if(model.pieceAt(a, b) != null) {
 									if(model.pieceAt(a, b).player() == model.currentPlayer()) {
+										if(inChk ==  true) {
+											if(model.pieceAt(a, b) != model.savior) {
+												JOptionPane.showMessageDialog(null, "Not a valid move.");
+											}
+										}
 										model.setCurrentPiece(model.pieceAt(a, b));
 										currentMove.fromRow = a;
 										currentMove.fromColumn = b;
-										highlight(a, b);
-										displayBoard();
 									}
 									else if(model.pieceAt(a, b).player() != model.currentPlayer()) {
 										currentMove.toRow = a;
 										currentMove.toColumn = b;
 										//model.removePiece(model.pieceAt(a, b));
 										model.move(currentMove);
+										model.currentPiece = null;
 										displayBoard();
 										
 										//check for win
@@ -365,6 +393,7 @@ public class ChessPanel extends JPanel {
 											}
 											else {
 												JOptionPane.showMessageDialog(null, "White is in check!");
+												inChk = true;
 											}
 										}
 										if(model.inCheck(Player.BLACK)) {
@@ -383,6 +412,7 @@ public class ChessPanel extends JPanel {
 											}
 											else {
 												JOptionPane.showMessageDialog(null, "Black is in check!");
+												inChk = true;
 											}
 										}
 									}	
@@ -391,6 +421,7 @@ public class ChessPanel extends JPanel {
 									currentMove.toRow = a;
 									currentMove.toColumn = b;
 									model.move(currentMove);
+									model.currentPiece = null;
 									displayBoard();
 									if(model.inCheck(Player.WHITE)) {
 										if(model.isComplete()) {
@@ -408,6 +439,7 @@ public class ChessPanel extends JPanel {
 										}
 										else {
 											JOptionPane.showMessageDialog(null, "White is in check!");
+											inChk = true;
 										}
 									}
 									if(model.inCheck(Player.BLACK)) {
@@ -426,6 +458,7 @@ public class ChessPanel extends JPanel {
 										}
 										else {
 											JOptionPane.showMessageDialog(null, "Black is in check!");
+											inChk = true;
 										}
 									}
 								}
