@@ -12,7 +12,7 @@ public class King extends ChessPiece{
 	protected int myCol;
 	
 	protected King(Player player, int row, int col) {
-		super(player);
+		super(player, row, col);
 		this.owner = player;
 		
 		myRow = row;
