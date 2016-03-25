@@ -207,8 +207,8 @@ public class ChessModel implements IChessModel {
 	public boolean inCheck(Player p, IChessPiece[][] board){
 		for (int r = 0; r < 8; r++) {
 			for (int c = 0; c < 8; c++) {
-				if (board[r,c].type() == "King" 
-					&& board[r,c].player() == p
+				if (board[r][c].type() == "King" 
+					&& board[r][c].player() == p
 					&& squareIsThreatened(r,c)){
 					return true;
 				}
