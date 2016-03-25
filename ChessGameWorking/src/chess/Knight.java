@@ -4,10 +4,16 @@ package chess;
  * @author Logan R. Crowe, Jake Young, Henry McDonough
  *****************************************************************/
 public class Knight extends ChessPiece {
+	
+	protected int myRow;
+	protected int myCol;
 
-	protected Knight(Player player) {
+	protected Knight(Player player, row, col) {
 		super(player);
 		this.owner = player;
+		
+		myRow = row;
+		myCol = col;
 	}
 
 	private Player owner;
