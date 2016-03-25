@@ -41,7 +41,7 @@ public abstract class ChessPiece implements IChessPiece {
 	}
 	
 	/*******************************************************************
-	 *Checks if the piece is threatened.
+	 * Checks if the piece is threatened.
 	 * @return false - the piece is not threatened
 	 * @return true - the piece is threatened
 	 ******************************************************************/
