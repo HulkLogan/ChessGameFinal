@@ -10,6 +10,9 @@ import javax.swing.JLabel;
  *****************************************************************/
 public abstract class ChessPiece implements IChessPiece {
 	
+	private int myRow;
+	private int myCol;
+	
 	/*Player variable that holds this pieces owner*/
 	private Player owner;
 	
@@ -17,8 +20,10 @@ public abstract class ChessPiece implements IChessPiece {
 	protected boolean hasMoved;
 	
 	/*sets the owner variable for this piece*/
-	protected ChessPiece(Player player) {
+	protected ChessPiece(Player player; int row; int col) {
 		this.owner = player;
+		myRow = row;
+		myCol = col;
 		hasMoved = false;
 	}
 	
@@ -40,10 +45,10 @@ public abstract class ChessPiece implements IChessPiece {
 	 * @return false - the piece is not threatened
 	 * @return true - the piece is threatened
 	 ******************************************************************/
-	public boolean isThreatened() {
+	public boolean isThreatened(IChessPiece[][] board) {
 		for (int r = 0; r < 8; r++) {
 			for (int c = 0; c < 8; c++) {
-				if (board[r][c].isValidMove(new Move(r, c, row, column),
+				if (board[r][c].isValidMove(new Move(r, c, myRow, myCol),
 					board))
 					return true;
 			}
