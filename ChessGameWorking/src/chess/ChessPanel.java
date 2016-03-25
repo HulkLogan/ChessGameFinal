@@ -359,11 +359,7 @@ public class ChessPanel extends JPanel {
 							if(e.getButton() == MouseEvent.BUTTON1) {
 								if(model.pieceAt(a, b) != null) {
 									if(model.pieceAt(a, b).player() == model.currentPlayer()) {
-										if(inChk ==  true) {
-											if(model.pieceAt(a, b) != model.savior) {
-												JOptionPane.showMessageDialog(null, "Not a valid move.");
-											}
-										}
+										
 										model.setCurrentPiece(model.pieceAt(a, b));
 										currentMove.fromRow = a;
 										currentMove.fromColumn = b;
