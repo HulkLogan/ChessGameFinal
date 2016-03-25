@@ -8,9 +8,15 @@ public class King extends ChessPiece{
   
 	private Player owner;
 	
-	protected King(Player player) {
+	protected int myRow;
+	protected int myCol;
+	
+	protected King(Player player, int row, int col) {
 		super(player);
 		this.owner = player;
+		
+		myRow = row;
+		myCol = col;
 	}
 	
 	public String type(){
