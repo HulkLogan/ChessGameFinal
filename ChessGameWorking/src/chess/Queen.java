@@ -18,7 +18,7 @@ public class Queen extends ChessPiece {
 		myCol = col;
 	}
 	
-	public boolean hasMoved() {	{
+	public boolean hasMoved() {
 		return super.hasMoved();
 	}
 
