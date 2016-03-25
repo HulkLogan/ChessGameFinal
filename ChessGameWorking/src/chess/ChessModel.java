@@ -217,13 +217,16 @@ public class ChessModel implements IChessModel {
 	 ****************************************************************/
 	@Override
 	public boolean inCheck(Player p){
-		Move temp = new Move();
+		Move temp;
+		
+		int tempToRow = -1;	// dummy initializations to satisfy compiler
+		int temToCol = -1;
 		for (int r = 0; r < 8; r++) {
 			for (int c = 0; c < 8; c++) {
 				if(board[r][c] != null) {
 					if(pieceAt(r, c).type() == "King" && pieceAt(r, c).player() == p) {
-						temp.toRow = r;
-						temp.toColumn = c;
+						tempToRow = r;
+						tempToCol = c;
 					}
 				}
 			}
@@ -232,8 +235,7 @@ public class ChessModel implements IChessModel {
 			for(int b = 0; b < 8; b++) {
 				if(board[a][b] != null) {
 					if(pieceAt(a, b).player() != p) {
-						temp.fromRow = a;
-						temp.fromColumn = b;
+						temp = new Move(a, b, tempToRow, tempToCol);
 						if(pieceAt(a, b).isValidMove(temp, board)) {
 							return true;
 						}
