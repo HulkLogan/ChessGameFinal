@@ -12,6 +12,8 @@ public interface IChessPiece {
 	 */
 	Player player();
 	
+	Player getPlayer();
+	
 	boolean hasMoved();
 
 	/**
