@@ -17,6 +17,10 @@ public class Queen extends ChessPiece {
 		myRow = row;
 		myCol = col;
 	}
+	
+	public boolean hasMoved() {	{
+		return super.hasMoved();
+	}
 
 	public String type(){
 		return "Queen";
