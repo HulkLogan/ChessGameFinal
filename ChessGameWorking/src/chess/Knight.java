@@ -14,12 +14,18 @@ public class Knight extends ChessPiece {
 		
 		myRow = row;
 		myCol = col;
+		hasMoved = false;
 	}
 
 	private Player owner;
 	
+	protected boolean hasMoved;
+	public void isNowMoved() {
+		hasMoved = true;
+	}
+	
 	public boolean hasMoved() {
-		return super.hasMoved();
+		return hasMoved;
 	}
 	
 	public String type(){
