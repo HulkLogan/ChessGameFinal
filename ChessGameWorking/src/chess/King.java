@@ -27,6 +27,10 @@ public class King extends ChessPiece{
 		return owner;
 	}
 	
+	public boolean hasMoved() {
+		return super.hasMoved();
+	}
+	
 	/*****************************************************************
 	 * Returns whether a move is allowed for a King
 	 *****************************************************************/
