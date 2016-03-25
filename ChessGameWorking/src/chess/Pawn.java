@@ -15,7 +15,7 @@ public class Pawn extends ChessPiece {
 	protected int myCol;
 	
 	protected Pawn(Player player, int row, int col) {
-		super(player);
+		super(player, row, col);
 		this.owner = player;
 		
 		myRow = row;
