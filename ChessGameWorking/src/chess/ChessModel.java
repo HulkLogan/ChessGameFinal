@@ -30,6 +30,8 @@ public class ChessModel implements IChessModel {
 	
 	/**the current piece*/
 	public IChessPiece currentPiece;
+	
+	/**ints for the taken pieces*/
 	public int takenBlackKnight = 0;
 	public int takenWhiteKnight = 0;
 	public int takenBlackBishop = 0;
@@ -40,14 +42,23 @@ public class ChessModel implements IChessModel {
 	public int takenWhitePawn = 0;
 	public int takenBlackQueen = 0;
 	public int takenWhiteQueen = 0;
-	public IChessPiece savior;
+	
+	/**img for jOptions*/
 	private Image bPawn;
 	private ImageIcon blackPawn;
-	//declare other instance variables as needed
-	
+
+	/*****************************************************************
+	 * Establish the board and all of the pieces
+	 *****************************************************************/
 	public ChessModel() {
+		
+		/**make the board*/
 		board = new IChessPiece[8][8];
+		
+		/**initial player*/
 		player = Player.WHITE;
+		
+		/**checks the img resource*/
 		try {
 			bPawn = ImageIO.read(getClass().getResource("/Resources/blackPawn.png"));
 		} catch (IOException e) {
@@ -94,7 +105,6 @@ public class ChessModel implements IChessModel {
 		board[6][6] = new Pawn(Player.WHITE);
 		board[6][7] = new Pawn(Player.WHITE);
 		
-		//finish
 	}
 	
 	/*****************************************************************
@@ -110,11 +120,10 @@ public class ChessModel implements IChessModel {
 			for (int c = 0; c < 8; c++){
 				for (int x = 0; x < 8; x++){ 
 					for (int y = 0; y < 8; y++){
-						savior = pieceAt(r, c);
 						if(pieceAt(r, c) != null && pieceAt(r, c).player() == currentPlayer()){
 							Move test = new Move(r,c,x,y);
 							if(isValidMove(test)){
-								return !testMove(test);
+								return testMove(test);
 							}
 						}
 					}
@@ -124,18 +133,18 @@ public class ChessModel implements IChessModel {
 		return true;
 	}
 	
+	/****************************************************************
+	 * Moves the piece on a test board and checks if this puts the player
+	 * in check.
+	 * @param move - the Move that needs to be performed
+	 ****************************************************************/
 	public boolean testMove(Move move){
 		duplicateBoard(board);
-		IChessPiece tempPiece = tempBoard[move.toRow][move.toColumn];
 		tempBoard[move.toRow][move.toColumn] = tempBoard[move.fromRow][move.fromColumn];
 		tempBoard[move.fromRow][move.fromColumn] = null;
-		if(!inCheck(player)){
-			tempBoard[move.fromRow][move.fromColumn] = tempBoard[move.toRow][move.toColumn];
-			tempBoard[move.toRow][move.toColumn] = tempPiece;
+		if(inCheck(player)){
 			return false;
 		}
-			tempBoard[move.fromRow][move.fromColumn] = tempBoard[move.toRow][move.toColumn];
-			tempBoard[move.toRow][move.toColumn] = tempPiece;
 			return true;
 	}
 	
@@ -170,6 +179,7 @@ public class ChessModel implements IChessModel {
 		if(pieceAt(move.fromRow, move.fromColumn) != null) {
 			if(isValidMove(move)) {
 				if(currentPiece != null) {
+					//keep track of certain pieces initial move
 					if(currentPiece.type() == "Pawn") {
 						((Pawn) currentPiece).hasMoved = true;
 						currentPiece = null;
@@ -184,6 +194,7 @@ public class ChessModel implements IChessModel {
 					}
 				}
 				if(pieceAt(move.toRow, move.toColumn) != null) {
+					//update removed piece tracker
 					removePiece(pieceAt(move.toRow, move.toColumn));
 					board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
 				}
@@ -200,7 +211,7 @@ public class ChessModel implements IChessModel {
 	
 	/****************************************************************
 	 * Verifies if player p's King is in check
-	 * @param p - the player that need to verifiy if they are checked
+	 * @param p - the player that need to verify if they are checked
 	 * @return false - if the player is not in check
 	 * @return true - if the player is in check
 	 ****************************************************************/
@@ -224,7 +235,6 @@ public class ChessModel implements IChessModel {
 						temp.fromRow = a;
 						temp.fromColumn = b;
 						if(pieceAt(a, b).isValidMove(temp, board)) {
-							//attacker = pieceAt(a, b);
 							return true;
 						}
 					}
@@ -250,75 +260,6 @@ public class ChessModel implements IChessModel {
 		return false;
 	}
 	
-//	public boolean canKingMove(int row, int col, Player p) {
-//		for(int r = row-1; r <= row+1; r++) {
-//			for(int c = col-1; c <= col+1; c++) {
-//				if(r < 8 && r > -1 && c < 8 && c > -1) {
-//					if(pieceAt(r, c) != null) {
-//						if(pieceAt(r, c).player() != currentPlayer()) {
-//							if(squareIsThreatened(r, c, p) == false) {
-//								return true;
-//							}
-//							return false;
-//						}
-//					}
-//					else {
-//						if(squareIsThreatened(r, c, p) == false) {
-//							return true;
-//						}
-//						return false;
-//					}
-//				}
-//			}
-//		}
-//		return false;
-//	}
-//
-//	public boolean canRemoveThreat(int row, int col, Player p) {
-//		IChessPiece fromSpot; 
-//		IChessPiece toSpot; 
-//		for(int r = 0; r < 8; r++) {
-//			for(int c = 0; c < 8; c++) {
-//				if(board[r][c] != null) {
-//					if(board[r][c].player() == p) {
-//						for(int x = 0; x < 8; x++) {
-//							for(int y = 0; y < 8; y++) {
-//								Move threat = new Move(r, c, x, y);
-//								if(board[r][c].isValidMove(threat, board)) {
-//									if(testMove(board, threat, p)){
-//										return true;
-//									}
-//									else {
-//										return false;
-//									}
-//								}
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//		return false;
-//	}
-	
-//	public boolean testMove(IChessPiece[][] board, Move move, Player p){
-//		
-//		IChessPiece fromPiece = board[move.fromRow][move.fromColumn];
-//		IChessPiece toPiece = board[move.toRow][move.toColumn];
-//		
-//		board[move.toRow][move.toColumn] = board[move.fromRow][move.fromColumn];
-//		board[move.fromRow][move.fromColumn] = null;
-//		if(!inCheck(p)){
-//			board[move.fromRow][move.fromColumn] = fromPiece;
-//			board[move.toRow][move.toColumn] = toPiece;
-//			return true;
-//		}
-//		else{
-//			board[move.fromRow][move.fromColumn] = fromPiece;
-//			board[move.toRow][move.toColumn] = toPiece;
-//			return false;
-//		}
-//	}
 	
 	public void promotion() {
 		for(int a = 0; a < 8; a++) {
@@ -773,6 +714,7 @@ public class ChessModel implements IChessModel {
 				if (board[r][c] != null) {
 					if(board[r][c].player() == Player.BLACK){
 						if(board[r][c].type() == "King"){
+							tempBoard[r][c] = new King(Player.BLACK);
 						}
 						else if(board[r][c].type() == "Queen"){
 							tempBoard[r][c] = new Queen(Player.BLACK);
